@@ -1,0 +1,102 @@
+              Compra en CL MISTRAL 16-18
+           06/02/2025 20:53 Nº de Tienda 1692
+                      Factura simpliﬁcada Nº 500961
+                  Nº de caja: 2. Nº de empleado 7000003
+               ID: ES-01692-02-00500961-20250206-195353
+
+
+
+ Resumen de la compra
+
+ Total sin promociones.................................................. 14,96 €
+
+                                         Ofertas y cupones                   -0,20 €
+
+ Total a pagar........................................... 14,76 €
+
+
+ Forma de pago
+
+ Tarjeta Tef..................................................................... 14,76 €
+
+
+
+Productos vendidos por Dia
+ DESCRIPCIÓN                         CANTIDAD         PRECIO KG             TOTAL
+
+ BEBIDA ENERGÉT
+                                            2 ud             0,40 €         0,80 €     C
+ ZERO
+
+ PIZZA FRE JAMÓN
+                                            1 ud             2,49 €         2,49 €     B
+ QUES
+
+ WHISKY BLENDED
+                                            1 ud             5,99 €         5,99 €     C
+ BURNE
+
+ PALOMITAS SNACK 80
+                                            1 ud             0,79 €         0,79 €     B
+ G
+
+ QUESO MAASDAM
+                                            1 ud             1,49 €         1,49 €     A
+ HOLAND
+
+ REFR.COLA REGULAR
+                                            4 ud             0,85 €         3,40 €     C
+ 2L
+
+ PACK 4UD COLA REGULA                                                      -0,20 €
+
+ Total venta Dia.............................................................. 14,76 €
+
+
+                                 Desglose de IVA
+                            Productos vendidos por Dia
+
+         TIPO                  IVA                  BASE                 CUOTA
+
+           A                    4%                  1,43 €                0,06 €
+
+           B                   10%                  2,98 €                0,30 €
+
+           C                   21%                  8,26 €                1,73 €
+
+
+                            GRACIALE, S.L CIF: B06996441
+                                   IVA incluido
+
+    Este ticket es imprescindible para cambios o devoluciones, excepto artículos
+                              refrigerados y congelados
+
+  Dispone de 15 días. Esta facultad de desistimiento es adicional, y no afecta a las
+    garantías legales ante la falta de conformidad conforme legislación vigente
+
+
+
+
+ Datos de la operación
+
+ VENTA - OPERACION CONTACTLESS
+ TARJ.:************2505
+
+ IMPORTE: 14,76 EUROS AUT.:000735641
+
+ AID:A0000000041010
+
+ ETIQ.APLIC.:MASTERCARD                    ARC:00
+
+ DF:A0000000041010
+
+ REF.DIA:01692022025020620554190018 00
+
+ FECHA: 06/02/2025 HORA: 20:55
+
+ CP:46020 Valencia
+
+ OPERACION CONTACTLESS
+
+ FIRMA NO NECESARIA
+

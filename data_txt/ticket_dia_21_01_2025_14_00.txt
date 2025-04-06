@@ -1,0 +1,80 @@
+              Compra en CL MISTRAL 16-18
+           21/01/2025 14:00 Nº de Tienda 1692
+                      Factura simpliﬁcada Nº 496021
+                  Nº de caja: 2. Nº de empleado 7000002
+               ID: ES-01692-02-00496021-20250121-130019
+
+
+
+ Resumen de la compra
+
+ Total sin promociones.................................................... 4,39 €
+
+
+ Total a pagar............................................. 4,39 €
+
+
+ Forma de pago
+
+ Tarjeta Tef....................................................................... 4,39 €
+
+
+
+Productos vendidos por Dia
+ DESCRIPCIÓN                          CANTIDAD         PRECIO KG             TOTAL
+
+
+ KETCHUP HEINZ                              1 ud             3,99 €          3,99 €     A
+
+
+ BEB ENERGÉTICA EL DI                       1 ud             0,40 €          0,40 €     B
+
+
+ Total venta Dia................................................................ 4,39 €
+
+
+                                 Desglose de IVA
+                             Productos vendidos por Dia
+
+         TIPO                   IVA                  BASE                 CUOTA
+
+           A                   10%                  3,63 €                 0,36 €
+
+           B                   21%                  0,33 €                 0,07 €
+
+
+                            GRACIALE, S.L CIF: B06996441
+                                   IVA incluido
+
+    Este ticket es imprescindible para cambios o devoluciones, excepto artículos
+                              refrigerados y congelados
+
+  Dispone de 15 días. Esta facultad de desistimiento es adicional, y no afecta a las
+    garantías legales ante la falta de conformidad conforme legislación vigente
+
+
+
+
+ Datos de la operación
+
+ VENTA - OPERACION CONTACTLESS
+ TARJ.:************2505
+
+ IMPORTE:         4,39 EUROS AUT.:000823648
+
+ AID:A0000000041010
+
+ ETIQ.APLIC.:MASTERCARD                    ARC:00
+
+ DF:A0000000041010
+
+ REF.DIA:01692022025012114004280490 00
+
+ FECHA: 21/01/2025 HORA: 14:00
+
+ CP:46020 Valencia
+
+ OPERACION CONTACTLESS
+
+ FIRMA NO NECESARIA
+

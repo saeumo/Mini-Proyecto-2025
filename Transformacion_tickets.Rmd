@@ -1,0 +1,47 @@
+---
+title: "Transformacion_tickets"
+author: "Samantha Morata"
+date: "2025-04-06"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Este código transforma los tickets de pdf a txt.
+
+```{r}
+
+# Cargamos las librerías necesarias
+library(pdftools)
+library(stringr)
+
+#Definimos la ruta de la carpeta con los PDF.
+
+carpeta_pdfs <- "data_pdf"
+
+#Creamos una lista de archivos PDF en la carpeta.
+
+lista_pdfs <- list.files(path = carpeta_pdfs, pattern = "\\.pdf$", full.names = TRUE)
+
+#Ponemos la carpeta donde queremos que se guarden los tickets en .txt
+carpeta_txts <- "data_txt"  
+dir.create(carpeta_txts, showWarnings = FALSE)
+
+#Procesamos cada PDF con un bucle.
+for (archivo_pdf in lista_pdfs) {
+  #Leemos el pdf.
+  texto_ticket <- pdf_text(archivo_pdf)
+  texto_completo <- paste(texto_ticket, collapse = "\n")
+  
+  #Creamos el txt con el mismo nombre.
+  nombre_sin_extension <- tools::file_path_sans_ext(basename(archivo_pdf))
+  ruta_txt <- file.path(carpeta_txts, paste0(nombre_sin_extension, ".txt"))
+  
+  #Guardamos el nuevo archivo txt.
+  writeLines(texto_completo, ruta_txt)
+
+}
+
+```

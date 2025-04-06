@@ -1,0 +1,75 @@
+              Compra en CL MISTRAL 16-18
+           29/01/2025 14:08 Nº de Tienda 1692
+                      Factura simpliﬁcada Nº 244050
+                  Nº de caja: 3. Nº de empleado 7000001
+               ID: ES-01692-03-00244050-20250129-130838
+
+
+
+ Resumen de la compra
+
+ Total sin promociones.................................................... 3,90 €
+
+
+ Total a pagar............................................. 3,90 €
+
+
+ Forma de pago
+
+ Tarjeta Tef....................................................................... 3,90 €
+
+
+
+Productos vendidos por Dia
+ DESCRIPCIÓN                          CANTIDAD         PRECIO KG             TOTAL
+
+
+ FLAUTA POLLO QUESO                         2 ud             1,95 €          3,90 €     A
+
+
+ Total venta Dia................................................................ 3,90 €
+
+
+                                 Desglose de IVA
+                             Productos vendidos por Dia
+
+         TIPO                   IVA                  BASE                 CUOTA
+
+           A                   10%                  3,55 €                 0,35 €
+
+
+                            GRACIALE, S.L CIF: B06996441
+                                   IVA incluido
+
+    Este ticket es imprescindible para cambios o devoluciones, excepto artículos
+                              refrigerados y congelados
+
+  Dispone de 15 días. Esta facultad de desistimiento es adicional, y no afecta a las
+    garantías legales ante la falta de conformidad conforme legislación vigente
+
+
+
+
+ Datos de la operación
+
+ VENTA - OPERACION CONTACTLESS
+ TARJ.:************2505
+
+ IMPORTE:         3,90 EUROS AUT.:000596814
+
+ AID:A0000000041010
+
+ ETIQ.APLIC.:MASTERCARD                    ARC:00
+
+ DF:A0000000041010
+
+ REF.DIA:01692032025012914085211483 00
+
+ FECHA: 29/01/2025 HORA: 14:08
+
+ CP:46020 Valencia
+
+ OPERACION CONTACTLESS
+
+ FIRMA NO NECESARIA
+
