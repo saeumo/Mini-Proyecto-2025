@@ -29,6 +29,8 @@ writeLines(texto_completo, ruta_txt)
 
 
 ```
+
+
 ```{r}
 #A continuación, vamos a dividir el ticket por partes:
 #Encabezado, de donde extraeremos posteriormente la tienda donde se ha realizado la compra y la fecha.
