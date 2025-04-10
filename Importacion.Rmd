@@ -53,7 +53,7 @@ for (i in 1:length(archivos)){
   
   #Creamos dos cadenas de texto de donde a partir de la función 'grep' y usando palabras clave del ticket, obtenemos las diferentes partes del ticket.
   if (grepl("Mercadona", archivos[i])) {
-    contenido <- paste(readLines(archivos[i]), collapse = "\n")
+    contenido <- readLines(archivos[i])
     
     inicio_productos <- grep("PRODUCTOS|DESCRIPCIÓN", contenido, ignore.case = TRUE)
     fin_total <- grep("TOTAL", contenido, ignore.case = TRUE)
@@ -109,14 +109,14 @@ for (i in 1:length(archivos)){
     
     #Creamos el Data Frame de los productos.
     df_producto <- data.frame(Factura = rep(factura, length(nombre)), Cantidad = cantidad, Producto = nombre, Precio = precio, stringsAsFactors = FALSE)
-    lista_filas_proudcto[[i]] <- df_producto
+    lista_filas_producto[[i]] <- df_producto
   }
 }
 
 #Añadimos las listas a los df vacíos
 
 df_tickets <- do.call(rbind, lista_filas_ticket)
-df_productos <- do.call(rbind, lista_filas_proudcto)
+df_productos <- do.call(rbind, lista_filas_producto)
 
 ```
 
