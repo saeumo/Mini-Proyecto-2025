@@ -11,7 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r}
 #Cargamos las librerías necesarias para la importación de los datos.
-
+#hola
 library(pdftools)
 library(stringr)
 #Creamos dos df vacíos, uno para los productos y otro para los tickets
