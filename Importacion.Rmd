@@ -9,49 +9,6 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r}
-#Cargamos las librerías necesarias para la importación de los datos.
-#Transfromaremos los tickets de .pdf a .txt.
-library(pdftools)
-library(stringr)
-
-#Defimos la ruta de acceso del ticket.
-ticket_pdf <- "Ticket1.pdf"  
-
-#Leemos el texto del .pdf para transformárlo a un vector de texto. 
-texto_ticket <- pdf_text(ticket_pdf)
-
-texto_completo <- paste(texto_ticket, collapse = "\n")
-
-#Guardamos el ticket.
-ruta_txt <- "ticket.txt"
-writeLines(texto_completo, ruta_txt)
-
-
-```
-
-
-```{r}
-#A continuación, vamos a dividir el ticket por partes:
-#Encabezado, de donde extraeremos posteriormente la tienda donde se ha realizado la compra y la fecha.
-#Productos, de dónde extraeremos el nombre del producto, la cantidad de cada uno, el pecio y además, si hay o no parking.
-#Parte final, de dónde estraeremos si se ha realizado el pago en efectivo o con tarjeta.
-
-#Creamos dos cadenas de texto de donde a partir de la función 'grep' y usando palabras clave del ticket, obtenemos las diferentes partes del ticket.
-
-inicio_productos <- grep("PRODUCTOS|DESCRIPCIÓN", contenido, ignore.case = TRUE)
-fin_total <- grep("TOTAL", contenido, ignore.case = TRUE)
-
-#Extraeremos las partes del ticket.
-
-encabezado <- contenido[1:(inicio_productos - 1)]
-encabezado
-productos <- contenido[inicio_productos:(fin_total - 1)]
-productos
-parte_final <- contenido[fin_total:length(contenido)]
-parte_final
-
-```
 
 ```{r}
 #Ahora vamos a crear dos data frames.
@@ -60,43 +17,108 @@ parte_final
 
 #El segundo ticket, será sobre los productos, se identificará también por el número de factura simplificada, tendrá la cantidad de cada producto, su nombre y el precio.
 
+df_productos <- data.frame(Factura = character(0), 
+                           Cantidad = integer(0), 
+                           Producto = character(0), 
+                           Precio = numeric(0), 
+                           stringsAsFactors = FALSE)
 
 
-#Primero extraeremos los datos del encabezado, es decir, el número de factura simplificada, la dirección del establecimiento y la fecha de compra.
-
-factura <- regmatches(encabezado[6], regexpr("\\d{4}-\\d{3}-\\d+", encabezado[6])) #el número de factura desde la línea 6, que coincida con el formato de la factura simplificada, es decir, 0000-000-0(o más dígitos).
-direccion <- encabezado[2] #la dirección que se haya en la línea 2 del encabezado.
-fecha <- regmatches(encabezado[5], regexpr("\\d{2}/\\d{2}/\\d{4}", encabezado[5])) #la fecha que se hayará en la línea 5, dónde coincida un código como dd/mm/aaaa.
 
 
-#Extraemos el importe total de la compra y el parking de la parte final.
+df_ticket <- data.frame(Factura = character(0), 
+                        Direccion = character(0), 
+                        Fecha = character(0), 
+                        Importe = numeric(0), 
+                        Num_Productos = integer(0), 
+                        Parking = logical(0), 
+                        Metodo_Pago = factor(character(0), levels = c("Efectivo", "Tarjeta")), 
+                        stringsAsFactors = FALSE)
 
-importe <- as.numeric(gsub(",", ".", regmatches(parte_final[1], regexpr("\\d+,\\d{2}", parte_final[1])))) #Extrae el texto de la línea 1 que coincide con el patrón uno o más dígitos ',' y dos dígitos.
+#Creamos dos listas vacías en las que ir añadiendo un df para cada ticket
 
-#Buscamos en la parte final las palabras 'TARJETA' o 'EFECTIVO'.
-if (any(grepl("TARJETA", parte_final, ignore.case = TRUE))) {
-  metodo_pago <- "Tarjeta"
-} else if (any(grepl("EFECTIVO", parte_final, ignore.case = TRUE))) {
-  metodo_pago <- "Efectivo"
+lista_filas_ticket<- list()
+lista_filas_producto<- list()
+
+#Haremos un bucle para añadir a las listas la info línea por línea, ticket por ticket.
+
+ruta_txt<- "data_txt"
+
+archivos<-  list.files(path = ruta_txt, full.names = TRUE)
+
+for (i in 1:length(archivos)){
+
+  #A continuación, vamos a dividir el ticket por partes:
+  #Encabezado, de donde extraeremos posteriormente la tienda donde se ha realizado la compra y la fecha.
+  #Productos, de dónde extraeremos el nombre del producto, la cantidad de cada uno, el pecio y además, si hay o no parking.
+  #Parte final, de dónde estraeremos si se ha realizado el pago en efectivo o con tarjeta.
+  
+  #Creamos dos cadenas de texto de donde a partir de la función 'grep' y usando palabras clave del ticket, obtenemos las diferentes partes del ticket.
+  if (grepl("Mercadona", archivos[i])) {
+    contenido <- paste(readLines(archivos[i]), collapse = "\n")
+    
+    inicio_productos <- grep("PRODUCTOS|DESCRIPCIÓN", contenido, ignore.case = TRUE)
+    fin_total <- grep("TOTAL", contenido, ignore.case = TRUE)
+    
+    #Extraeremos las partes del ticket.
+    
+    encabezado <- contenido[1:(inicio_productos - 1)]
+    encabezado
+    productos <- contenido[inicio_productos:(fin_total - 1)]
+    productos
+    parte_final <- contenido[fin_total:length(contenido)]
+    parte_final
+  
+    #Ahora vamos a crear dos data frames.
+    
+    #El primero sobre el ticket, donde el número de factura simplificada será lo que identifique al ticket, tendremos la dirección de la tienda, la fecha de compra, el importe de la compra, el número de productos, si hay o no parking (sí/no) y el tipo de pago (efectivo/ tarjeta).
+    
+    #El segundo ticket, será sobre los productos, se identificará también por el número de factura simplificada, tendrá la cantidad de cada producto, su nombre y el precio.
+    
+    
+    
+    #Primero extraeremos los datos del encabezado, es decir, el número de factura simplificada, la dirección del establecimiento y la fecha de compra.
+    
+    factura <- regmatches(encabezado[6], regexpr("\\d{4}-\\d{3}-\\d+", encabezado[6])) #el número de factura desde la línea 6, que coincida con el formato de la factura simplificada, es decir, 0000-000-0(o más dígitos).
+    direccion <- encabezado[2] #la dirección que se haya en la línea 2 del encabezado.
+    fecha <- regmatches(encabezado[5], regexpr("\\d{2}/\\d{2}/\\d{4}", encabezado[5])) #la fecha que se hayará en la línea 5, dónde coincida un código como dd/mm/aaaa.
+    
+    
+    #Extraemos el importe total de la compra y el parking de la parte final.
+    
+    importe <- as.numeric(gsub(",", ".", regmatches(parte_final[1], regexpr("\\d+,\\d{2}", parte_final[1])))) #Extrae el texto de la línea 1 que coincide con el patrón uno o más dígitos ',' y dos dígitos.
+    
+    #Buscamos en la parte final las palabras 'TARJETA' o 'EFECTIVO'.
+    if (any(grepl("TARJETA", parte_final, ignore.case = TRUE))) {
+      metodo_pago <- "Tarjeta"
+    } else if (any(grepl("EFECTIVO", parte_final, ignore.case = TRUE))) {
+      metodo_pago <- "Efectivo"
+    }
+    
+    #Seleccionamos los productos.
+    productos_limpios <- productos[-1]  #Quitamos la cabecera de "Descripción..."
+    productos_limpios <- trimws(productos_limpios) #Quitamos los espacios en blanco tanto de antes como de después para quedarnos solo con el nombre del producto.
+    tiene_parking <- ifelse(any(grepl("PARKING", productos_limpios, ignore.case = TRUE)), "Sí", "No") #Buscamos si hay o no parking. 
+    
+    #Extraer cantidad, nombre y precio.
+    cantidad <- as.numeric(sub("^\\s*(\\d+).*", "\\1", productos_limpios))
+    precio <- as.numeric(gsub(",", ".", regmatches(productos_limpios, gregexpr("\\d+,\\d{2}", productos_limpios))))
+    nombre <- trimws(gsub("^\\s*\\d+\\s+", "", sub("\\s+\\d+,\\d{2}$", "", productos_limpios)))
+    
+    #Creamos el Data Frame del ticket,
+    df_ticket <- data.frame(Factura = factura, Direccion = direccion, Fecha = fecha, Importe = importe, Num_Productos = length(nombre), Parking = tiene_parking, Metodo_Pago = metodo_pago, stringsAsFactors = FALSE)
+    lista_filas_ticket[[i]] <- df_ticket
+    
+    #Creamos el Data Frame de los productos.
+    df_producto <- data.frame(Factura = rep(factura, length(nombre)), Cantidad = cantidad, Producto = nombre, Precio = precio, stringsAsFactors = FALSE)
+    lista_filas_proudcto[[i]] <- df_producto
+  }
 }
 
-#Seleccionamos los productos.
-productos_limpios <- productos[-1]  #Quitamos la cabecera de "Descripción..."
-productos_limpios <- trimws(productos_limpios) #Quitamos los espacios en blanco tanto de antes como de después para quedarnos solo con el nombre del producto.
-tiene_parking <- ifelse(any(grepl("PARKING", productos_limpios, ignore.case = TRUE)), "Sí", "No") #Buscamos si hay o no parking. 
+#Añadimos las listas a los df vacíos
 
-#Extraer cantidad, nombre y precio.
-cantidad <- as.numeric(sub("^\\s*(\\d+).*", "\\1", productos_limpios))
-precio <- as.numeric(gsub(",", ".", regmatches(productos_limpios, gregexpr("\\d+,\\d{2}", productos_limpios))))
-nombre <- trimws(gsub("^\\s*\\d+\\s+", "", sub("\\s+\\d+,\\d{2}$", "", productos_limpios)))
-
-#Creamos el Data Frame del ticket,
-df_ticket <- data.frame(Factura = factura, Direccion = direccion, Fecha = fecha, Importe = importe, Num_Productos = length(nombre), Parking = tiene_parking, Metodo_Pago = metodo_pago, stringsAsFactors = FALSE)
-df_ticket
-
-#Creamos el Data Frame de los productos.
-df_productos <- data.frame(Factura = rep(factura, length(nombre)), Cantidad = cantidad, Producto = nombre, Precio = precio, stringsAsFactors = FALSE)
-df_productos
+df_tickets <- do.call(rbind, lista_filas_ticket)
+df_productos <- do.call(rbind, lista_filas_proudcto)
 
 ```
 
