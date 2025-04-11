@@ -9,7 +9,7 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-<<<<<<< HEAD
+  
 
 ```{r}
 #Ahora vamos a crear dos data frames.
@@ -17,8 +17,6 @@ knitr::opts_chunk$set(echo = TRUE)
 #El primero sobre el ticket, donde el número de factura simplificada será lo que identifique al ticket, tendremos la dirección de la tienda, la fecha de compra, el importe de la compra, el número de productos, si hay o no parking (sí/no) y el tipo de pago (efectivo/ tarjeta).
 
 #El segundo ticket, será sobre los productos, se identificará también por el número de factura simplificada, tendrá la cantidad de cada producto, su nombre y el precio.
-=======
-```{r}
 #Cargamos las librerías necesarias para la importación de los datos.
 #hola
 library(pdftools)
@@ -30,7 +28,6 @@ df_productos <- data.frame(Factura = character(0),
                            Producto = character(0), 
                            Precio = numeric(0), 
                            stringsAsFactors = FALSE)
->>>>>>> 2f9ce1fe575589c9a3740363c3765e27650f877e
 
 df_productos <- data.frame(Factura = character(0), 
                            Cantidad = integer(0), 
@@ -39,24 +36,8 @@ df_productos <- data.frame(Factura = character(0),
                            stringsAsFactors = FALSE)
 
 
-<<<<<<< HEAD
-=======
-df_ticket <- data.frame(Factura = character(0), 
-                        Direccion = character(0), 
-                        Fecha = character(0), 
-                        Importe = numeric(0), 
-                        Num_Productos = integer(0), 
-                        Parking = logical(0), 
-                        Metodo_Pago = factor(character(0), levels = c("Efectivo", "Tarjeta")), 
-                        stringsAsFactors = FALSE)
-
-#Creamos dos listas vacías en las que ir añadiendo un df para cada ticket
->>>>>>> 2f9ce1fe575589c9a3740363c3765e27650f877e
-
-lista_filas_ticket<- list()
-lista_filas_producto<- list()
-
-<<<<<<< HEAD
+  
+ 
 df_ticket <- data.frame(Factura = character(0), 
                         Direccion = character(0), 
                         Fecha = character(0), 
@@ -71,16 +52,30 @@ df_ticket <- data.frame(Factura = character(0),
 lista_filas_ticket<- list()
 lista_filas_producto<- list()
 
+  
+df_ticket <- data.frame(Factura = character(0), 
+                        Direccion = character(0), 
+                        Fecha = character(0), 
+                        Importe = numeric(0), 
+                        Num_Productos = integer(0), 
+                        Parking = logical(0), 
+                        Metodo_Pago = factor(character(0), levels = c("Efectivo", "Tarjeta")), 
+                        stringsAsFactors = FALSE)
+
+#Creamos dos listas vacías en las que ir añadiendo un df para cada ticket
+
+lista_filas_ticket<- list()
+#####lista_filas_producto<- list()
+
 #Haremos un bucle para añadir a las listas la info línea por línea, ticket por ticket.
 
 ruta_txt<- "data_txt"
 
-=======
+ 
 #Haremos un bucle para añadir a las listas la info línea por línea, ticket por ticket.
 
 ruta_txt<- "data_txt"
 
->>>>>>> 2f9ce1fe575589c9a3740363c3765e27650f877e
 archivos<-  list.files(path = ruta_txt, full.names = TRUE)
 
 for (i in 1:length(archivos)){
@@ -92,12 +87,11 @@ for (i in 1:length(archivos)){
   
   #Creamos dos cadenas de texto de donde a partir de la función 'grep' y usando palabras clave del ticket, obtenemos las diferentes partes del ticket.
   if (grepl("Mercadona", archivos[i])) {
-<<<<<<< HEAD
+  
     contenido <- paste(readLines(archivos[i]), collapse = "\n")
-=======
+ 
     contenido <- readLines(archivos[i])
->>>>>>> 2f9ce1fe575589c9a3740363c3765e27650f877e
-    
+
     inicio_productos <- grep("PRODUCTOS|DESCRIPCIÓN", contenido, ignore.case = TRUE)
     fin_total <- grep("TOTAL", contenido, ignore.case = TRUE)
     
@@ -152,22 +146,20 @@ for (i in 1:length(archivos)){
     
     #Creamos el Data Frame de los productos.
     df_producto <- data.frame(Factura = rep(factura, length(nombre)), Cantidad = cantidad, Producto = nombre, Precio = precio, stringsAsFactors = FALSE)
-<<<<<<< HEAD
-    lista_filas_proudcto[[i]] <- df_producto
-=======
+  
     lista_filas_producto[[i]] <- df_producto
->>>>>>> 2f9ce1fe575589c9a3740363c3765e27650f877e
+ 
+    lista_filas_producto[[i]] <- df_producto
   }
 }
 
 #Añadimos las listas a los df vacíos
 
 df_tickets <- do.call(rbind, lista_filas_ticket)
-<<<<<<< HEAD
-df_productos <- do.call(rbind, lista_filas_proudcto)
-=======
+  
 df_productos <- do.call(rbind, lista_filas_producto)
->>>>>>> 2f9ce1fe575589c9a3740363c3765e27650f877e
+ 
+df_productos <- do.call(rbind, lista_filas_producto)
 
 ```
 
