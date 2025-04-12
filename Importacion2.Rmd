@@ -101,7 +101,6 @@ for (file in archivos) {
           precio_unitario = precio_unitario,
           precio_total = total,
           peso = NA,
-          tipo = factor("otro", levels = c("fruta y verdura", "pescado", "otro")),
           stringsAsFactors = FALSE
         ))
         productos_en_ticket <- productos_en_ticket + 1
@@ -124,7 +123,6 @@ for (file in archivos) {
         precio_unitario = precio_unitario,
         precio_total = total,
         peso = peso,
-        tipo = factor(tipo, levels = c("fruta y verdura", "pescado", "otro")),
         stringsAsFactors = FALSE
       ))
       productos_en_ticket <- productos_en_ticket + 1
@@ -145,9 +143,7 @@ for (file in archivos) {
   ))
 }
 
-# Resultados finales
-print(tickets)
-print(productos)
+
 
 ```
 
