@@ -1,0 +1,154 @@
+---
+title: "Prueba"
+author: "Xavi Ponsoda Langon"
+date: "2025-04-12"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r}
+library(stringr)
+library(dplyr)
+
+# Ruta de la carpeta con los tickets
+ruta <- "data_txt"
+archivos <- list.files(ruta, pattern = "\\.txt$", full.names = TRUE)
+
+# DataFrames vacíos
+tickets <- data.frame()
+productos <- data.frame()
+
+# Función para limpiar nombres con múltiples espacios
+limpiar_nombre <- function(nombre) {
+  if (str_detect(nombre, "\\s{2,}")) {
+    partes <- str_split(nombre, "\\s{2,}")[[1]]
+    if (length(partes) == 2) {
+      return(ifelse(nchar(partes[1]) > nchar(partes[2]), partes[1], partes[2]))
+    }
+  }
+  return(nombre)
+}
+
+# Bucle que recorre todos los archivos
+for (file in archivos) {
+  lines <- readLines(file, encoding = "UTF-8")
+  
+  # Código de factura
+  codigo_factura <- str_extract(lines[str_detect(lines, "FACTURA SIMPLIFICADA")], "\\d{4}-\\d{3}-\\d+")
+  
+  # Dirección
+  direccion <- lines[which(str_detect(lines, "MERCADONA")) + 1]
+  
+  # Fecha y hora
+  datetime_line <- lines[str_detect(lines, "\\d{2}/\\d{2}/\\d{4} \\d{2}:\\d{2}")]
+  fecha <- str_extract(datetime_line, "\\d{2}/\\d{2}/\\d{4}")
+  hora <- str_extract(datetime_line, "\\d{2}:\\d{2}")
+  
+  # Método de pago
+  metodo_pago <- if (any(str_detect(lines, "TARJETA"))) "tarjeta" else "efectivo"
+  
+  # Parking (detección más flexible e insensible a mayúsculas)
+  parking <- any(str_detect(tolower(lines), "veh[ií]culo"))
+
+  # Importe total
+  importe <- as.numeric(str_replace(str_extract(lines[str_detect(lines, "TOTAL.*\\€")][1], "\\d+,\\d{2}$"), ",", "."))
+  
+  # Contador de productos por ticket
+  productos_en_ticket <- 0
+  
+  # Bandera para identificar si estamos en sección PESCADO
+  seccion_pescado <- FALSE
+  
+  for (i in seq_along(lines)) {
+    line <- lines[i]
+    
+    # Cambia a modo pescado si detecta "PESCADO"
+    if (str_trim(line) == "PESCADO") {
+      seccion_pescado <- TRUE
+      next
+    }
+
+    # Productos con cantidad y precio sin peso
+    if (str_detect(line, "^\\s*\\d+\\s+.+\\d+,\\d{2}$")) {
+      partes <- str_match(line, "^\\s*(\\d+)\\s+(.+?)\\s{2,}(\\d+,\\d{2})$")
+      if (!is.na(partes[1])) {
+        cantidad <- as.numeric(partes[2])
+        nombre <- limpiar_nombre(str_trim(partes[3]))
+        total <- as.numeric(str_replace(partes[4], ",", "."))
+        precio_unitario <- round(total / cantidad, 2)
+        
+        productos <- rbind(productos, data.frame(
+          factura = codigo_factura,
+          cantidad = cantidad,
+          nombre = nombre,
+          precio_unitario = precio_unitario,
+          precio_total = total,
+          peso = NA,
+          tipo = factor("otro", levels = c("fruta y verdura", "pescado", "otro")),
+          stringsAsFactors = FALSE
+        ))
+        productos_en_ticket <- productos_en_ticket + 1
+      }
+    }
+
+    # Productos con peso (medido en kg)
+    if (str_detect(line, "([0-9,.]+)\\s*kg\\s+.*€/kg")) {
+      nombre <- limpiar_nombre(str_trim(lines[i - 1]))  # línea anterior contiene el nombre puro
+      partes <- str_match(line, "([0-9,.]+)\\s*kg\\s+.*?([0-9,.]+) €/kg\\s+([0-9,.]+)")
+      peso <- as.numeric(str_replace(partes[2], ",", "."))
+      precio_unitario <- as.numeric(str_replace(partes[3], ",", "."))
+      total <- as.numeric(str_replace(partes[4], ",", "."))
+      tipo <- if (seccion_pescado) "pescado" else "fruta y verdura"
+      
+      productos <- rbind(productos, data.frame(
+        factura = codigo_factura,
+        cantidad = 1,
+        nombre = nombre,
+        precio_unitario = precio_unitario,
+        precio_total = total,
+        peso = peso,
+        tipo = factor(tipo, levels = c("fruta y verdura", "pescado", "otro")),
+        stringsAsFactors = FALSE
+      ))
+      productos_en_ticket <- productos_en_ticket + 1
+    }
+  }
+  
+  # Agrega fila al dataframe de tickets
+  tickets <- rbind(tickets, data.frame(
+    factura = codigo_factura,
+    direccion = direccion,
+    fecha = as.Date(fecha, format = "%d/%m/%Y"),
+    hora = hora,
+    n_productos = productos_en_ticket,
+    importe = importe,
+    parking = parking,
+    metodo_pago = factor(metodo_pago, levels = c("tarjeta", "efectivo")),
+    stringsAsFactors = FALSE
+  ))
+}
+
+# Resultados finales
+print(tickets)
+print(productos)
+
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
