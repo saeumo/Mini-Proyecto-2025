@@ -1,0 +1,164 @@
+---
+title: "Importación"
+author: "Grupo 7"
+date: "2025-04-12"
+output: html_document
+---
+Este documento almacena en dos DataFrames los tickets ya pasados a txt
+
+
+```{r}
+library(stringr)
+library(dplyr)
+
+# Ruta de la carpeta con los tickets
+ruta <- "data_txt"
+archivos <- list.files(ruta, pattern = "\\.txt$", full.names = TRUE)
+
+# DataFrames vacíos
+tickets <- data.frame()
+productos <- data.frame()
+
+# Función para limpiar nombres con múltiples espacios
+limpiar_nombre <- function(nombre) {
+  if (str_detect(nombre, "\\s{2,}")) {
+    partes <- str_split(nombre, "\\s{2,}")[[1]]
+    if (length(partes) == 2) {
+      return(ifelse(nchar(partes[1]) > nchar(partes[2]), partes[1], partes[2]))
+    }
+  }
+  return(nombre)
+}
+
+# Bucle que recorre todos los archivos
+for (file in archivos) {
+  lines <- readLines(file, encoding = "UTF-8")
+  if (any(str_detect(lines, "TARJETA"))){
+  
+    # Código de factura
+    codigo_factura <- str_extract(lines[str_detect(lines, "FACTURA SIMPLIFICADA")], "\\d{4}-\\d{3}-\\d+")
+    
+    # Dirección
+    direccion <- lines[which(str_detect(lines, "MERCADONA")) + 1]
+    
+    # Fecha y hora
+    datetime_line <- lines[str_detect(lines, "\\d{2}/\\d{2}/\\d{4} \\d{2}:\\d{2}")]
+    fecha <- str_extract(datetime_line, "\\d{2}/\\d{2}/\\d{4}")
+    hora <- str_extract(datetime_line, "\\d{2}:\\d{2}")
+    
+    # Método de pago
+    metodo_pago <- if (any(str_detect(lines, "TARJETA"))) "tarjeta" else "efectivo"
+    
+    # Parking (detección más flexible e insensible a mayúsculas)
+    parking <- any(str_detect(tolower(lines), "veh[ií]culo"))
+  
+    # Importe total
+    importe <- as.numeric(str_replace(str_extract(lines[str_detect(lines, "TOTAL.*\\€")][1], "\\d+,\\d{2}$"), ",", "."))
+    
+    # Contador de productos por ticket
+    productos_en_ticket <- 0
+    
+    # Bandera para identificar si estamos en sección PESCADO
+    seccion_pescado <- FALSE
+    
+    for (i in seq_along(lines)) {
+      line <- lines[i]
+      
+      # Cambia a modo pescado si detecta "PESCADO"
+      if (str_trim(line) == "PESCADO") {
+        seccion_pescado <- TRUE
+        next
+      }
+  
+      # Productos con cantidad y precio sin peso
+      if (str_detect(line, "^\\s*\\d+\\s+.+\\d+,\\d{2}$")) {
+        partes <- str_match(line, "^\\s*(\\d+)\\s+(.+?)\\s{2,}(\\d+,\\d{2})$")
+        if (!is.na(partes[1])) {
+          cantidad <- as.numeric(partes[2])
+          nombre <- limpiar_nombre(str_trim(partes[3]))
+          total <- as.numeric(str_replace(partes[4], ",", "."))
+          precio_unitario <- round(total / cantidad, 2)
+          if(!(length(codigo_factura)==0|
+             length(nombre)==0|
+             length(peso)==0|
+             length(total)==0|
+             length(precio_unitario)==0
+                    )){
+          
+            productos <- rbind(productos, data.frame(
+              factura = codigo_factura,
+              cantidad = cantidad,
+              nombre = nombre,
+              precio_unitario = precio_unitario,
+              precio_total = total,
+              peso = NA,
+              stringsAsFactors = FALSE
+            ))
+            productos_en_ticket <- productos_en_ticket + 1
+          }
+        }
+      }
+  
+      # Productos con peso (medido en kg)
+      if (str_detect(line, "([0-9,.]+)\\s*kg\\s+.*€/kg")) {
+        nombre <- limpiar_nombre(str_trim(lines[i - 1]))  # línea anterior contiene el nombre puro
+        partes <- str_match(line, "([0-9,.]+)\\s*kg\\s+.*?([0-9,.]+) €/kg\\s+([0-9,.]+)")
+        peso <- as.numeric(str_replace(partes[2], ",", "."))
+        precio_unitario <- as.numeric(str_replace(partes[3], ",", "."))
+        total <- as.numeric(str_replace(partes[4], ",", "."))
+        
+        
+        if(!(length(codigo_factura)==0|
+             length(nombre)==0|
+             length(peso)==0|
+             length(total)==0|
+             length(precio_unitario)==0
+                    )){
+        
+          productos <- rbind(productos, data.frame(
+            factura = codigo_factura,
+            cantidad = 1,
+            nombre = nombre,
+            precio_unitario = precio_unitario,
+            precio_total = total,
+            peso = peso,
+            stringsAsFactors = FALSE
+          ))
+          productos_en_ticket <- productos_en_ticket + 1
+      }
+    }
+    if (!(length(codigo_factura)==0|
+        length(direccion)==0|
+        length(fecha)==0|
+        length(hora)==0|
+        length(productos_en_ticket)==0|
+        length(importe)==0|
+        length(parking)==0|
+        length(metodo_pago)==0)){
+      # Agrega fila al dataframe de tickets
+      tickets <- rbind(tickets, data.frame(
+        factura = codigo_factura,
+        direccion = direccion,
+        fecha = as.Date(fecha, format = "%d/%m/%Y"),
+        hora = hora,
+        n_productos = productos_en_ticket,
+        importe = importe,
+        parking = parking,
+        metodo_pago = factor(metodo_pago, levels = c("tarjeta", "efectivo")),
+        stringsAsFactors = FALSE
+      ))
+    }
+    }
+  }
+}
+
+#Si se ha guardado algún ticket duplicado, nos quedamos con el que tenga
+#más productos(el último que se guardó)
+tickets<- tickets%>%
+  group_by(factura)%>%
+  filter(n_productos==max(n_productos))%>%
+  unique()
+
+
+```
+
