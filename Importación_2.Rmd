@@ -5,18 +5,15 @@ date: "2025-04-11"
 ---
 
 ```{r}
-# Cargamos las librerías necesarias para la importación de los datos.
 library(pdftools)
 library(stringr)
 
-# Creamos dos data frames vacíos, uno para productos y otro para tickets.
-# Se incluyen las columnas: Cantidad, Peso, Producto, Precio_Unitario e Importe_Total.
 df_productos <- data.frame(Factura = character(0), 
-                           Cantidad = numeric(0),
-                           Peso = numeric(0), 
+                           Cantidad = numeric(0), 
+                           Peso = numeric(0),
                            Producto = character(0), 
                            Precio_Unitario = numeric(0),
-                           Importe_Total = numeric(0),
+                           Precio_Total = numeric(0),
                            stringsAsFactors = FALSE)
 
 df_ticket <- data.frame(Factura = character(0), 
@@ -24,226 +21,124 @@ df_ticket <- data.frame(Factura = character(0),
                         Fecha = character(0), 
                         Importe = numeric(0), 
                         Num_Productos = integer(0), 
-                        Parking = character(0), 
+                        Parking = logical(0), 
                         Metodo_Pago = factor(character(0), levels = c("Efectivo", "Tarjeta")), 
                         stringsAsFactors = FALSE)
 
-# Creamos dos listas vacías para almacenar cada ticket y sus productos.
 lista_filas_ticket <- list()
 lista_filas_producto <- list()
 
-# Definimos la ruta de los archivos TXT.
 ruta_txt <- "data_txt"
 archivos <- list.files(path = ruta_txt, full.names = TRUE)
 
-for (i in seq_along(archivos)) {
-  
-  # Procesamos solo tickets de Mercadona
+for (i in 1:length(archivos)) {
   if (grepl("Mercadona", archivos[i])) {
-    contenido <- readLines(archivos[i])
+    contenido <- readLines(archivos[i], warn = FALSE)
     
-    # Dividimos el ticket en secciones: encabezado, productos y parte final.
     inicio_productos <- grep("PRODUCTOS|DESCRIPCIÓN", contenido, ignore.case = TRUE)
     fin_total <- grep("TOTAL", contenido, ignore.case = TRUE)
-    
+
     encabezado <- contenido[1:(inicio_productos - 1)]
     productos <- contenido[inicio_productos:(fin_total - 1)]
     parte_final <- contenido[fin_total:length(contenido)]
-    
-    # Extracción de datos del encabezado.
+
     factura <- regmatches(encabezado[6], regexpr("\\d{4}-\\d{3}-\\d+", encabezado[6]))
     direccion <- encabezado[2]
     fecha <- regmatches(encabezado[5], regexpr("\\d{2}/\\d{2}/\\d{4}", encabezado[5]))
     
-    # Extracción del importe total y método de pago.
-    importe <- as.numeric(gsub(",", ".", regmatches(parte_final[1],
-                              regexpr("\\d+,\\d{2}", parte_final[1]))))
-    if (any(grepl("TARJETA", parte_final, ignore.case = TRUE))) {
-      metodo_pago <- "Tarjeta"
+    importe <- as.numeric(gsub(",", ".", regmatches(parte_final[1], regexpr("\\d+,\\d{2}", parte_final[1]))))
+    
+    metodo_pago <- if (any(grepl("TARJETA", parte_final, ignore.case = TRUE))) {
+      "Tarjeta"
     } else if (any(grepl("EFECTIVO", parte_final, ignore.case = TRUE))) {
-      metodo_pago <- "Efectivo"
+      "Efectivo"
     } else {
-      metodo_pago <- NA
+      NA
     }
     
-    # Se procesa la sección de productos: quitamos la cabecera ("DESCRIPCIÓN..."),
-    # eliminamos líneas vacías y aplicamos la fusión de líneas.
     productos_limpios <- productos[-1]
     productos_limpios <- trimws(productos_limpios)
-    productos_limpios <- productos_limpios[nchar(productos_limpios) > 0]
-    
-    # Fusión de líneas: si la línea actual NO contiene indicadores (precio final, "kg", "gr" o "€/kg")
-    # y la siguiente SÍ, se fusionan. Así se evita unir líneas que ya tengan datos completos.
-    productos_combinados <- c()
-    j <- 1
-    while (j <= length(productos_limpios)) {
-      linea_actual <- productos_limpios[j]
-      linea_siguiente <- if (j < length(productos_limpios)) productos_limpios[j+1] else ""
-      
-      tiene_precio_actual <- grepl("\\d+[.,]\\d{2}\\s*$", linea_actual)
-      tiene_kg_gr_actual <- grepl("\\bkg\\b|\\bgr\\b", linea_actual, ignore.case = TRUE)
-      tiene_unit_indicador_actual <- grepl("€/kg", linea_actual, ignore.case = TRUE)
-      
-      tiene_precio_siguiente <- grepl("\\d+[.,]\\d{2}\\s*$", linea_siguiente)
-      tiene_kg_gr_siguiente  <- grepl("\\bkg\\b|\\bgr\\b", linea_siguiente, ignore.case = TRUE)
-      tiene_unit_indicador_siguiente <- grepl("€/kg", linea_siguiente, ignore.case = TRUE)
-      
-      if (!tiene_precio_actual && !tiene_kg_gr_actual && !tiene_unit_indicador_actual &&
-          (tiene_precio_siguiente || tiene_kg_gr_siguiente || tiene_unit_indicador_siguiente)) {
-        linea_unida <- paste(linea_actual, linea_siguiente)
-        productos_combinados <- c(productos_combinados, linea_unida)
-        j <- j + 2
+    productos_limpios <- productos_limpios[productos_limpios != ""]
+
+    tiene_parking <- ifelse(any(grepl("PARKING", productos_limpios, ignore.case = TRUE)), TRUE, FALSE)
+
+    df_lineas <- data.frame(linea = productos_limpios, stringsAsFactors = FALSE)
+
+    productos_extraidos <- data.frame(Factura = character(), 
+                                      Cantidad = numeric(), 
+                                      Peso = numeric(),
+                                      Producto = character(), 
+                                      Precio_Unitario = numeric(),
+                                      Precio_Total = numeric(), 
+                                      stringsAsFactors = FALSE)
+
+    for (j in 1:nrow(df_lineas)) {
+      linea <- df_lineas$linea[j]
+
+      # Si es una línea de producto con peso (formato "COL LOMBARDA 0,840 kg    1,85 €/kg")
+      if (grepl("\\d+,\\d+\\s*kg", linea, ignore.case = TRUE)) {
+        nombre <- trimws(gsub("(\\d+,\\d+\\s*kg.*)", "", linea))
+        peso <- as.numeric(gsub(",", ".", str_extract(linea, "\\d+,\\d+\\s*kg")))
+        precio_unit <- as.numeric(gsub(",", ".", str_extract(linea, "\\d+,\\d+\\s*€/kg")))
+        precio_total <- round(precio_unit * peso, 2)
+
+        productos_extraidos <- rbind(productos_extraidos, data.frame(
+          Factura = factura,
+          Cantidad = 1,
+          Peso = peso,
+          Producto = nombre,
+          Precio_Unitario = precio_unit,
+          Precio_Total = precio_total,
+          stringsAsFactors = FALSE
+        ))
+
+      } else if (grepl("^\\d+\\s", linea)) {
+        # Línea con cantidad explícita ("2 TOMATE TRITURADO 0,75")
+        cantidad <- as.numeric(str_extract(linea, "^\\d+"))
+        precio <- as.numeric(gsub(",", ".", str_extract(linea, "\\d+,\\d{2}$")))
+        nombre <- trimws(gsub("^\\d+\\s+|\\s+\\d+,\\d{2}$", "", linea))
+
+        productos_extraidos <- rbind(productos_extraidos, data.frame(
+          Factura = factura,
+          Cantidad = cantidad,
+          Peso = NA,
+          Producto = nombre,
+          Precio_Unitario = precio,
+          Precio_Total = round(cantidad * precio, 2),
+          stringsAsFactors = FALSE
+        ))
+
       } else {
-        productos_combinados <- c(productos_combinados, linea_actual)
-        j <- j + 1
+        # Posible caso especial: línea sin cantidad o continuación de otro producto
+        nombre <- trimws(gsub("\\s+\\d+,\\d{2}$", "", linea))
+        precio <- as.numeric(gsub(",", ".", str_extract(linea, "\\d+,\\d{2}$")))
+        
+        productos_extraidos <- rbind(productos_extraidos, data.frame(
+          Factura = factura,
+          Cantidad = 1,
+          Peso = NA,
+          Producto = nombre,
+          Precio_Unitario = precio,
+          Precio_Total = precio,
+          stringsAsFactors = FALSE
+        ))
       }
     }
-    
-    # Determinamos si se menciona "PARKING" en el ticket.
-    tiene_parking <- ifelse(any(grepl("PARKING", productos_combinados, ignore.case = TRUE)), "Sí", "No")
-    
-    # Procesamos cada línea de producto.
-    productos_info <- lapply(productos_combinados, function(linea) {
-      if (nchar(trimws(linea)) == 0) return(NULL)
-      
-      # Caso 1: Producto por peso (contiene "kg" o "gr").
-      if (grepl("\\bkg\\b", linea, ignore.case = TRUE) || grepl("\\bgr\\b", linea, ignore.case = TRUE)) {
-        
-        # Detectamos si se usa kg o gr.
-        es_kg <- grepl("\\bkg\\b", linea, ignore.case = TRUE)
-        es_gr <- grepl("\\bgr\\b", linea, ignore.case = TRUE)
-        
-        # Extraemos el valor de peso: número que precede a "kg" o "gr".
-        peso_match <- regexpr("[0-9]+([.,][0-9]+)?(?=\\s*(kg|gr))", linea, perl = TRUE)
-        peso_str <- regmatches(linea, peso_match)
-        if (length(peso_str) == 0) {
-          peso <- NA
-        } else {
-          peso_valor <- as.numeric(gsub(",", ".", peso_str))
-          peso <- if (es_gr) (peso_valor / 1000) else peso_valor
-        }
-        
-        # Extraemos el precio unitario: buscamos el patrón de número seguido de "€/kg".
-        unit_price_match <- regexpr("([0-9]+([.,][0-9]+)?)\\s*€/kg", linea, perl = TRUE)
-        if (unit_price_match[1] != -1) {
-          unit_price_str <- regmatches(linea, unit_price_match)
-          unit_price_str <- sub("€/kg", "", unit_price_str, ignore.case = TRUE)
-          unit_price_str <- trimws(unit_price_str)
-          precio_unitario <- as.numeric(gsub(",", ".", unit_price_str))
-        } else {
-          precio_unitario <- NA
-        }
-        
-        # Para el importe total: si se encuentra un número al final de la línea (que no sea el unitario),
-        # se usa; en caso contrario, se calcula multiplicando peso por precio unitario.
-        total_match <- regexpr("\\d+[.,]\\d{2}\\s*$", linea)
-        if (total_match[1] != -1) {
-          total_str <- regmatches(linea, total_match)
-          importe_total <- as.numeric(gsub(",", ".", total_str))
-        } else if (!is.na(precio_unitario) && !is.na(peso)) {
-          importe_total <- round(peso * precio_unitario, 2)
-        } else {
-          importe_total <- NA
-        }
-        
-        # Extraemos el nombre del producto:
-        # Se elimina la parte de peso (ej. "0,840 kg") y la parte del precio unitario (ej. "1,85 €/kg").
-        nombre <- linea
-        nombre <- sub("[0-9]+([.,][0-9]+)?\\s*(kg|gr)", "", nombre, ignore.case = TRUE)
-        nombre <- sub("([0-9]+([.,][0-9]+)?)\\s*€/kg", "", nombre, ignore.case = TRUE)
-        # También se elimina cualquier número final (que corresponda al importe total) si aparece.
-        nombre <- sub("\\s*\\d+[.,]\\d{2}\\s*$", "", nombre)
-        nombre <- trimws(nombre)
-        
-        # Para productos por peso se asigna cantidad = 1 (por conveniencia).
-        cantidad <- 1
-        
-        return(list(
-          cantidad = cantidad,
-          peso = peso,
-          nombre = nombre,
-          Precio_Unitario = precio_unitario,
-          Importe_Total = importe_total
-        ))
-        
-      } else {
-        # Caso 2: Producto por unidad (no contiene "kg" ni "gr").
-        cantidad <- NA
-        if (grepl("^\\d+\\s+", linea)) {
-          cantidad_match <- regexpr("^\\d+", linea)
-          cantidad_str <- regmatches(linea, cantidad_match)
-          if (length(cantidad_str) > 0)
-            cantidad <- as.numeric(cantidad_str)
-        }
-        
-        # Extraemos todos los números con formato decimal; se espera que el penúltimo sea precio unitario
-        # y el último importe total.
-        nums <- regmatches(linea, gregexpr("\\d+[.,]\\d{2}", linea))
-        nums <- unlist(nums)
-        if (length(nums) >= 2) {
-          precio_unitario <- as.numeric(gsub(",", ".", nums[length(nums)-1]))
-          importe_total   <- as.numeric(gsub(",", ".", nums[length(nums)]))
-        } else if (length(nums) == 1) {
-          precio_unitario <- as.numeric(gsub(",", ".", nums[1]))
-          importe_total   <- precio_unitario
-        } else {
-          precio_unitario <- NA
-          importe_total <- NA
-        }
-        # Limpiamos el nombre: quitamos la cantidad inicial (si existe) y cualquier número al final.
-        nombre <- sub("^\\s*\\d+\\s+", "", linea)
-        nombre <- sub("\\s*\\d+[.,]\\d{2}\\s*$", "", nombre)
-        nombre <- trimws(nombre)
-        if (is.na(cantidad)) { cantidad <- 1 }
-        
-        return(list(
-          cantidad = cantidad,
-          peso = NA,
-          nombre = nombre,
-          Precio_Unitario = precio_unitario,
-          Importe_Total = importe_total
-        ))
-      }
-    })
-    
-    # Eliminamos elementos NULL que pudieran haberse generado.
-    productos_info <- Filter(Negate(is.null), productos_info)
-    
-    # Armamos vectores a partir de la lista procesada.
-    cantidad_vec <- sapply(productos_info, function(x) x$cantidad)
-    peso_vec     <- sapply(productos_info, function(x) x$peso)
-    nombre_vec   <- sapply(productos_info, function(x) x$nombre)
-    precio_unitario_vec <- sapply(productos_info, function(x) x$Precio_Unitario)
-    importe_total_vec   <- sapply(productos_info, function(x) x$Importe_Total)
-    
-    # Creamos el data frame del ticket.
-    df_ticket_temp <- data.frame(
-      Factura = factura,
-      Direccion = direccion,
-      Fecha = fecha,
-      Importe = importe,
-      Num_Productos = length(nombre_vec),
-      Parking = tiene_parking,
-      Metodo_Pago = metodo_pago,
-      stringsAsFactors = FALSE
-    )
-    lista_filas_ticket[[i]] <- df_ticket_temp
-    
-    # Creamos el data frame de productos.
-    df_productos_temp <- data.frame(
-      Factura = rep(factura, length(nombre_vec)),
-      Cantidad = cantidad_vec,
-      Peso = peso_vec,
-      Producto = nombre_vec,
-      Precio_Unitario = precio_unitario_vec,
-      Importe_Total = importe_total_vec,
-      stringsAsFactors = FALSE
-    )
-    lista_filas_producto[[i]] <- df_productos_temp
+
+    df_ticket <- data.frame(Factura = factura,
+                            Direccion = direccion,
+                            Fecha = fecha,
+                            Importe = importe,
+                            Num_Productos = nrow(productos_extraidos),
+                            Parking = tiene_parking,
+                            Metodo_Pago = metodo_pago,
+                            stringsAsFactors = FALSE)
+
+    lista_filas_ticket[[i]] <- df_ticket
+    lista_filas_producto[[i]] <- productos_extraidos
   }
 }
 
-# Combinamos las listas en los data frames finales.
 df_tickets <- do.call(rbind, lista_filas_ticket)
 df_productos <- do.call(rbind, lista_filas_producto)
 

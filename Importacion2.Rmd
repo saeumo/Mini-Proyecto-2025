@@ -80,7 +80,6 @@ for (file in archivos) {
           precio_unitario <- round(total / cantidad, 2)
           if(!(length(codigo_factura)==0|
              length(nombre)==0|
-             length(peso)==0|
              length(total)==0|
              length(precio_unitario)==0
                     )){
