@@ -7,6 +7,7 @@ date: ""
 output: html_document
 ---
 
+
 **Introducción**
 
 En este proyecto de la asignatura Tratamiento de los Datos del Grado Ciencia de
@@ -28,24 +29,7 @@ formato más manejable tipo .txt y posteriormente han sido procesados con RStudi
 y guardados en dos data frames para un correcto estudio de la información 
 obtenida.
 
-En el primer data frame, se ha guardado la información de cada compra y 
-está referenciado en la variable 'df_tickets', el cual contiene la siguiente
-información: número de factura, direccion del establecimiento, fecha de compra,
-hora de compra, número de productos, importe de la compra, parking y método de
-pago. *Véase en la Figura 1.*
-
-
-
-En el segundo data frame, se ha guardado la información de los productos de cada
-compra distinguiendo entre productos especiales que van al peso como por ejmeplo
-la fruta, la verdura o el pescado. Los productos quedan referenciados en la 
-variable 'df_productos', la cual contiene la siguiente información: el número de
-factura de dónde se compró dicho producto, la cantidad del producto, el nombre 
-del producto, el peso (si fuera un producto al peso), el precio por unidad y el
-precio total del producto. *Véase en la figura 2.*
-
-
-```{r}
+```{r setup, include=FALSE}
 library(stringr)
 library(dplyr)
 library(tidyverse)
@@ -197,8 +181,34 @@ tickets<- tickets%>%
   filter(n_productos==max(n_productos))%>%
   unique()
 
-
+figura1 <- head(tickets)
+figura2 <- head(productos)
 ```
+
+En el primer data frame, se ha guardado la información de cada compra y 
+está referenciado en la variable 'df_tickets', el cual contiene la siguiente
+información: número de factura, direccion del establecimiento, fecha de compra,
+hora de compra, número de productos, importe de la compra, parking y método de
+pago. *Véase en la Figura 1.*
+
+```{r mostrar-df-tickets, echo=FALSE}
+knitr::kable(figura1, caption = "Figura 1: Información de los tickets de Mercadona")
+```
+
+
+
+En el segundo data frame, se ha guardado la información de los productos de cada
+compra distinguiendo entre productos especiales que van al peso como por ejmeplo
+la fruta, la verdura o el pescado. Los productos quedan referenciados en la 
+variable 'df_productos', la cual contiene la siguiente información: el número de
+factura de dónde se compró dicho producto, la cantidad del producto, el nombre 
+del producto, el peso (si fuera un producto al peso), el precio por unidad y el
+precio total del producto. *Véase en la figura 2.*
+
+```{r mostrar-df-productos, echo=FALSE}
+knitr::kable(figura2, caption = "Figura 2: Información de las compras en Mercadona")
+```
+
 
 
 **Preguntas**
