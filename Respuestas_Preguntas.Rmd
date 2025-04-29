@@ -61,27 +61,15 @@ compras_por_turno[1,]
 ```
 Como podemos observar, la parte del día donde es más común hacer la compra es durante la noche, que habiéndola definido como lo hemos hecho nosotros, es entre las 18 y las 21 horas.
 
+¿Cuál es el producto que, cuando se compra, se compra en mayor cantidad?
 
 ```{r}
-library(dplyr)
-library(lubridate)
+media_productos <- productos %>%
+  group_by(nombre) %>%
+  summarise(cantidad_media = mean(cantidad)) %>%
+  arrange(desc(cantidad_media))
 
-# 1. Extraer hora y categorizar partes del día
-tickets_hora <- tickets %>%
-  mutate(hora_compra = as.POSIXct(hora, format = "%H:%M"),
-      parte_dia = case_when(
-      hour(hora_compra) >= 6 & hour(hora_compra) < 12 ~ "Mañana",
-      hour(hora_compra) >= 12 & hour(hora_compra) < 15 ~ "Mediodía",
-      hour(hora_compra) >= 15 & hour(hora_compra) < 18 ~ "Tarde",
-      hour(hora_compra) >= 18 & hour(hora_compra) < 21 ~ "Noche",
-      TRUE ~ "Madrugada"),
-      parte_dia = factor(parte_dia, levels = c("Mañana", "Mediodía", "Tarde", "Noche", "Madrugada"))
-  )
-
-# 2. Contar compras por parte del día
-compras_por_turno <- tickets_hora %>%
-  count(parte_dia, name = "total_compras")
+media_productos[1,]
 
 ```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+Como podemos observar, el producto que cuando se compra, se hace en mayor cantidad, es la cola sin cafeina, siendo así que cada vez que alguien compra este producto, de media compra 8 unidades.
