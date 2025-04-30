@@ -4,6 +4,17 @@ author: "Arnau López Rodrigo"
 date: "2025-04-27"
 output: html_document
 ---
+¿Cuál es el gasto medio por compra?
+```{r}
+head(tickets)
+#La columna importe en el data frame tickets contiene el gasto total de cada compra. Para calcular el gasto medio por compra, simplemente necesitamos calcular la media de esta columna.
+```
+
+¿Cuál ha sido la evolución del precio del aceite con el paso del tiempo?
+```{r}
+
+```
+
 
 ¿Cuál es el mercadona más popular de Valencia? Es decir,¿Cuál ha sido el más
 visitado?
