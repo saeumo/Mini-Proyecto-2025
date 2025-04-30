@@ -35,6 +35,7 @@ tabla_visitas_mercadona <- tickets %>%
   summarise(visitas = n()) %>%
   arrange(desc(visitas))                       
 
+#Seleccionamos la primera fila ya que la tabla está ordenada de modo decreciente, quedando así el valor mas alto en la primera fila
 tabla_visitas_mercadona[1,]
 
 ```
@@ -72,6 +73,7 @@ compras_por_turno <- compras_por_turno %>%
   summarise(total_compras = sum(total_compras)) %>%
   arrange(desc(total_compras))
 
+#Seleccionamos la primera fila ya que la tabla está ordenada de modo decreciente, quedando así el valor mas alto en la primera fila
 compras_por_turno[1,]
 
 ```
@@ -85,6 +87,7 @@ media_productos <- productos %>%
   summarise(cantidad_media = mean(cantidad)) %>%
   arrange(desc(cantidad_media))
 
+#Seleccionamos la primera fila ya que la tabla está ordenada de modo decreciente, quedando así el valor mas alto en la primera fila
 media_productos[1,]
 
 ```
