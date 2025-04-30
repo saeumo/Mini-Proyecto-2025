@@ -8,6 +8,11 @@ output: html_document
 ```{r}
 head(tickets)
 #La columna importe en el data frame tickets contiene el gasto total de cada compra. Para calcular el gasto medio por compra, simplemente necesitamos calcular la media de esta columna.
+
+gasto_medio <- mean(tickets$importe)
+
+# Imprimir el resultado
+cat("El gasto medio por compra es:", gasto_medio, "€\n")
 ```
 
 ¿Cuál ha sido la evolución del precio del aceite con el paso del tiempo?
