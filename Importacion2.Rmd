@@ -44,15 +44,22 @@ productos <- data.frame()
 
 # Función para limpiar nombres con múltiples espacios
 limpiar_nombre <- function(nombre) {
+  # Eliminar números
+  nombre <- str_remove_all(nombre, "\\d")
+  
+  # Verificar si hay más de un espacio consecutivo
   if (str_detect(nombre, "\\s{2,}")) {
     partes <- str_split(nombre, "\\s{2,}")[[1]]
+    
+    # Si hay exactamente dos partes, se devuelve la más larga
     if (length(partes) == 2) {
-      return(ifelse(nchar(partes[1]) > nchar(partes[2]), partes[1], partes[2]))
+      nombre <- ifelse(nchar(partes[1]) > nchar(partes[2]), partes[1], partes[2])
     }
   }
-  return(nombre)
+  
+  # Eliminar los espacios al inicio y al final
+  return(str_trim(nombre))
 }
-
 # Bucle que recorre todos los archivos
 for (file in archivos) {
   lines <- readLines(file, encoding = "UTF-8")
@@ -114,6 +121,7 @@ for (file in archivos) {
               precio_unitario = precio_unitario,
               precio_total = total,
               peso = NA,
+              tipo = factor("otro", levels = c("pescado", "fruta/verdura","otro")),
               stringsAsFactors = FALSE
             ))
             productos_en_ticket <- productos_en_ticket + 1
@@ -128,6 +136,8 @@ for (file in archivos) {
         peso <- as.numeric(str_replace(partes[2], ",", "."))
         precio_unitario <- as.numeric(str_replace(partes[3], ",", "."))
         total <- as.numeric(str_replace(partes[4], ",", "."))
+        tipo<- ifelse(str_detect(lines[i - 1], "\\d"), "fruta/verdura","pescado")
+        
         
         
         if(!(length(codigo_factura)==0|
@@ -144,6 +154,7 @@ for (file in archivos) {
             precio_unitario = precio_unitario,
             precio_total = total,
             peso = peso,
+            tipo = factor(tipo, levels = c("pescado", "fruta/verdura","otro")),
             stringsAsFactors = FALSE
           ))
           productos_en_ticket <- productos_en_ticket + 1
