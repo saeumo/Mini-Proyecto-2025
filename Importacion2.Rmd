@@ -222,6 +222,34 @@ Dada la vista información, el profesor nos ha planteado las siguientes pregunta
 
 ¿Cuáles son los 5 productos, de los vendidos por unidades, con más ventas? 
 
+```{r setup, include=FALSE}
+
+#Filtramos los productos vendidos por unidades (cantidad entera)
+
+mas_vendidos <- productos %>% filter(cantidad %% 1 == 0)
+
+
+#Agrupamos por nombre del producto, calculamos la suma del precio_total por producto y ordenamos de mayor a menor según las ventas totales.
+#Por último seleccionamos los 5 productos con mayores ventas.
+
+ventas_top5 <- mas_vendidos %>% group_by(nombre) %>% summarise(ventas_totales = round(sum(precio_total, na.rm = TRUE))) %>% arrange(desc(ventas_totales)) %>% slice_head(n = 5)
+
+ventas_top5
+
+```
+Los 5 productos más vendidos por unidad son...
+
+En primer lugar, el filete de pechuga con 153 ventas, en segundo lugar el queso
+en lonchas de cabra con 153 ventas, seguido de el queso arzua con 141 ventas, 
+a continuación el atún claro de oliva en pack de 6 con 125 unidades y por último
+lugar el plátano con 111 ventas.
+
+```{r ventas_top5, echo=FALSE}
+knitr::kable(ventas_top5, caption = "Top 5 productos más vendidos por unidad")
+```
+
+
+
 ¿Cuántas unidades de cada uno se han vendido?
 
 Si consideramos la categoría de FRUTAS Y VERDURAS. ¿Cuáles son los 5 productos 
