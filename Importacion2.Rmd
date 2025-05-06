@@ -247,7 +247,7 @@ Dada la vista información, el profesor nos ha planteado las siguientes pregunta
 
 1. ¿Cuáles son los 5 productos, de los vendidos por unidades, con más ventas? 
 
-```{r, include=FALSE}
+```{r, echo=FALSE}
 
 #Filtramos los productos vendidos por unidades (cantidad entera)
 
@@ -263,7 +263,7 @@ ventas_top5
 
 ```
 
--Los 5 productos más vendidos por unidad son...
+- Los 5 productos más vendidos por unidad son...
 
 En primer lugar se encuentra el filete de pechuga, seguido en segundo lugar 
 por el queso de cabra en lonchas. En tercer lugar se sitúa el queso Arzúa,
@@ -272,7 +272,7 @@ en cuarto lugar el plátano y, finalmente, en quinto lugar, el pack de atún cla
 
 2. ¿Cuántas unidades de cada uno se han vendido?
 
--Se han registrado ventas de 153 unidades de filete de pechuga, así como 153 
+- Se han registrado ventas de 153 unidades de filete de pechuga, así como 153 
 unidades de queso de cabra en lonchas. Asimismo, se han vendido 141 unidades 
 de queso Arzúa, 132 unidades de plátano y 125 unidades de atún en aceite de 
 oliva. *Véase en la Figura 3*
@@ -292,7 +292,7 @@ fruta_verdura_mas_vendida <- productos %>%
   head(5)
 ```
 
--Como podemos observar, el plátano es con diferencia la fruta más vendida,
+- Como podemos observar, el plátano es con diferencia la fruta más vendida,
 seguida por su hermana la banana. Luego tenemos pepino, berenjena y kiwi verde.
 Cabe destacar que estos son los PRODUCTOS más vendidos de esta sección, que no
 las frutas o verduras más vendidas ya que, por ejemplo, la manzana sería una de
@@ -319,7 +319,7 @@ kilos_vendidos <- productos%>%
 
 ```
 
--Obviamente, el plátano es el que más cantidad se ha comprado. Es interesante 
+- Obviamente, el plátano es el que más cantidad se ha comprado. Es interesante 
 que todos los productos aquí se venden cerca de un kilo por vez. Algunos un poco 
 más, otros un poco menos. Pero el kiwi se aleja de ese número un montón. Siendo 
 la compra media de alrededor de un cuarto de kilo.*Figura 5*
@@ -339,7 +339,7 @@ pescado_mas_vendido <- productos %>%
   head(5)
 ```
 
--Aquí tenemos  los 5 tipos de pescado que han sido vendidos más veces. Aún así,
+- Aquí tenemos  los 5 tipos de pescado que han sido vendidos más veces. Aún así,
 han sido vendido pocas veces. Esto muestra, comparando con las dos preguntas 
 anteriores, lo poco común que es la compra de pescado en comparativa de la de
 fruta y verdura.*Figura 6*
@@ -360,7 +360,7 @@ productos%>%
 
 ```
 
--Observamos que el Salmón se vende en más cantidad por compra, esto es porque 
+- Observamos que el Salmón se vende en más cantidad por compra, esto es porque 
 es entero.
 
 7. Muestra mediante un gráfico de líneas como ha variado el precio por kilo de 
@@ -370,7 +370,7 @@ las bananas y los plátanos en los tickets disponibles, a lo largo del tiempo.
 bananas, como se observa, el que más a variado de precio durante el tiempo es 
 el kilo de plátano...*Véase en la Figura 7*
 
-```{r, echo = FLASE}
+```{r, echo = FALSE}
 
 #Creamos un nuevo df filtrando las bananas y los plátanos.
 
@@ -427,7 +427,7 @@ Nosotros hemos planteado las siguientes:
 
 1. ¿Cuál es el gasto medio por compra?
 
--El gasto medio por compra es de 45.88€
+- El gasto medio por compra es de 45.88€
 
 ```{r, echo = FALSE}
 head(tickets)
@@ -463,7 +463,7 @@ tabla_mas_visitados <- tabla_visitas_mercadona[1,]
 
 ```
 
--Como podemos observar, el mercadona que mas se ha visitado ha sido el que se
+- Como podemos observar, el mercadona que mas se ha visitado ha sido el que se
 encuentra en C/ QUART 120; el cual ha sido visitado un total de 51 veces.
 
 ```{r tabla_mas_visitados, echo=FALSE}
@@ -503,14 +503,14 @@ compras_por_turno[1,]
 
 ```
 
--Como podemos observar, la parte del día donde es más común hacer la compra 
+- Como podemos observar, la parte del día donde es más común hacer la compra 
 es durante la noche, que habiéndola definido como lo hemos hecho nosotros, es 
 entre las 18 y las 21 horas. Esto tiene sentido, ya que coincide con la franja 
 horaria en la que la gente sale de trabajar y por lo tanto tienen tiempo para ir
 al supermercado.
 
-```{r hora_mas_frecuente, echo=False}
-knitr::kable(hora_mas_frecuente, caption = "Franja del día más frecuentada")
+```{r compras_por_turno, echo=FALSE}
+knitr::kable(compras_por_turno, caption = "Franja del día más frecuentada")
 ```
 
 
@@ -527,7 +527,7 @@ media_productos[1,]
 
 ```
 
--Se observa que el producto que cuando se compra, se hace en mayor 
+- Se observa que el producto que cuando se compra, se hace en mayor 
 cantidad, es la cola sin cafeina, siendo así que cada vez que alguien compra 
 este producto, de media compra 8 unidades.
 
@@ -547,7 +547,7 @@ table(ventas_por_dia)
 
 ```
 
--Como podemos observar, el día de la semana que es más habitual hacer la compra, 
+- Como podemos observar, el día de la semana que es más habitual hacer la compra, 
 es decir, el día de la semana que más vende es el sábado. Esto tiene sentido,
 ya que muchas personas aprovechan el fin de semana para hacer la compra de la
 semana, y algunas también tienen libre ese día, lo que les permite ir con más 
