@@ -248,63 +248,96 @@ ventas_top5 <- mas_vendidos %>% group_by(nombre) %>% summarise(ventas_totales = 
 ventas_top5
 
 ```
-Los 5 productos más vendidos por unidad son...
 
-En primer lugar, el filete de pechuga con 153 ventas, en segundo lugar el queso
-en lonchas de cabra con 153 ventas, seguido de el queso arzua con 141 ventas, 
-a continuación el atún claro de oliva en pack de 6 con 125 unidades y por último
-lugar el plátano con 111 ventas.
+-Los 5 productos más vendidos por unidad son...
 
-```{r ventas_top5, echo=FALSE}
-knitr::kable(ventas_top5, caption = "Top 5 productos más vendidos por unidad")
-```
-
-
+-En primer lugar se encuentra el filete de pechuga, seguido en segundo lugar 
+por el queso de cabra en lonchas. En tercer lugar se sitúa el queso Arzúa,
+en cuarto lugar el plátano y, finalmente, en quinto lugar, el pack de atún claro.
+*Véase ne la figura 3*
 
 ¿Cuántas unidades de cada uno se han vendido?
 
+-Se han registrado ventas de 153 unidades de filete de pechuga, así como 153 
+unidades de queso de cabra en lonchas. Asimismo, se han vendido 141 unidades 
+de queso Arzúa, 132 unidades de plátano y 125 unidades de atún en aceite de 
+oliva. *Véase ne la figura 3*
+
+```{r ventas_top5, echo=FALSE}
+knitr::kable(ventas_top5, caption = "Figura 3: Top 5 productos más vendidos por unidad")
+```
+
+
 ¿Cuáles son las 5 fruta/verdura más vendidas?
-```{r}
-productos %>%
+
+```{r, echo = FALSE}
+fruta_verdura_mas_vendida <- productos %>%
   filter(tipo == "fruta/verdura") %>%
   count(nombre, name = "cantidad_total") %>%
   arrange(-cantidad_total) %>%
   head(5)
 ```
-Como podemos observar, el plátano es con diferencia la fruta más vendida, seguida
-por su hermana la banana. Luego tenemos pepino, berenjena y kiwi verde. Cabe 
-destacar que estos son los PRODUCTOS más vendidos de esta sección, que no las
-frutas o verduras más vendidas ya que, por ejemplo, la manzana sería una de las 
-más vendidas pero, al haber tantos tipos, ninguna de ellas alcanza el top. Es 
-decir, hay muchas frutas y verduras que pueden haber sido más vendidas, pero 
+
+-Como podemos observar, el plátano es con diferencia la fruta más vendida,
+seguida por su hermana la banana. Luego tenemos pepino, berenjena y kiwi verde.
+Cabe destacar que estos son los PRODUCTOS más vendidos de esta sección, que no
+las frutas o verduras más vendidas ya que, por ejemplo, la manzana sería una de
+las más vendidas pero, al haber tantos tipos, ninguna de ellas alcanza el top. 
+Es decir, hay muchas frutas y verduras que pueden haber sido más vendidas, pero 
 ningún tipo concreto de estas llega a alcanzar a otras que no están seccionadas.
+*Véase en la figura 4*
 
 También hay que decir que hemos tenido en cuenta para este ranking las veces que
 han sido vendidos y no los kilos que han sido vendidos.
 
+```{r fruta_verdura_mas_vendida, echo=FALSE}
+knitr::kable(fruta_verdura_mas_vendida, caption = "Figura 4: Top 5 verduras o frutas más venidas")
+```
 
 ¿Cuántos kg se han vendido de estos productos?
+
 ```{r}
-productos%>%
+kilos_vendidos <- productos%>%
   filter(nombre %in% c("PLATANO","PEPINO","KIWI VERDE","BERENJENA","BANANA"))%>%
   group_by(nombre)%>%
   summarise(kilos_totales=sum(peso))%>%
   arrange(-kilos_totales)
 
 ```
-Obviamente, el plátano es el que más cantidad se ha comprado. Es interesante que todos los productos aquí se venden cerca de un kilo por vez. Algunos un poco más, otros un poco menos. Pero el kiwi se aleja de ese número un montón. Siendo la compra media de alrededor de un cuarto de kilo.
+
+-Obviamente, el plátano es el que más cantidad se ha comprado. Es interesante 
+que todos los productos aquí se venden cerca de un kilo por vez. Algunos un poco 
+más, otros un poco menos. Pero el kiwi se aleja de ese número un montón. Siendo 
+la compra media de alrededor de un cuarto de kilo.*Figura 5*
+
+```{r kilos_venidos, echo=FALSE}
+knitr::kable(kilos_vendidos, caption = "Figura 5")
+```
+
 
 ¿Cuáles son los 5 pescados más vendidos?
-```{r}
-productos %>%
+
+```{r, echo = FALSE}
+pescado_mas_vendido <- productos %>%
   filter(tipo == "pescado") %>%
   count(nombre, name = "cantidad_total") %>%
   arrange(-cantidad_total) %>%
   head(5)
 ```
-Aquí tenemos  los 5 tipos de pescado que han sido vendidos más veces. Aún así, han sido vendido pocas veces. Esto muestra, comparando con las dos preguntas anteriores, lo poco común que es la compra de pescado en comparativa de la de fruta y verdura.
+
+-Aquí tenemos  los 5 tipos de pescado que han sido vendidos más veces. Aún así,
+han sido vendido pocas veces. Esto muestra, comparando con las dos preguntas 
+anteriores, lo poco común que es la compra de pescado en comparativa de la de
+fruta y verdura.
+
+```{r pescado_mas_vendido, echo = FALSE}
+knitr::kable(pescado_mas_vendido, caption = "Figura 6: Top 5 pescados más venidos")
+
+```
+
 
 ¿Cuántos kg se han vendido de estos productos?
+
 ```{r}
 productos%>%
   filter(nombre %in% c("BACALADILLA","SEPIA FRESCA","SEPIA LONJA","LENGUADO FRESC EUROP","SALMON ENTERO"))%>%
