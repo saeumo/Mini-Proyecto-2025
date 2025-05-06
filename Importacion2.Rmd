@@ -247,7 +247,7 @@ Dada la vista información, el profesor nos ha planteado las siguientes pregunta
 
 1. ¿Cuáles son los 5 productos, de los vendidos por unidades, con más ventas? 
 
-```{r setup, include=FALSE}
+```{r, include=FALSE}
 
 #Filtramos los productos vendidos por unidades (cantidad entera)
 
