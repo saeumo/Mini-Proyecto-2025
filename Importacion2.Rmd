@@ -7,6 +7,9 @@ date: ""
 output: html_document
 ---
 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
 
 **Introducción**
 
@@ -24,11 +27,6 @@ tratamiento previo de los tickets proporcionados, iniciando con su filtrado,
 ya que algunos de ellos no correspondían a Mercadona, sino a otros supermercados
 que no son relevantes para nuestro  estudio.
 
-A continuación, estos tickets han sido importados de un formato .pdf a un
-formato más manejable tipo .txt y posteriormente han sido procesados con RStudio
-y guardados en dos data frames para un correcto estudio de la información 
-obtenida.
-
 Para el correcto estudio, se ha hecho uso de las siguientes librerías...
 Stringr para el majnejo de datos de tipo string.
 Dplyr para limpiar, resumir, ordenar y transformar datasets.
@@ -37,10 +35,13 @@ modelar.
 Lubridate para tratar fechas.
 Ggplot2 para la creación de gráficas.
 
+A continuación, estos tickets han sido importados de un formato .pdf a un
+formato más manejable tipo .txt y posteriormente han sido procesados con RStudio
+y guardados en dos data frames para un correcto estudio de la información 
+obtenida.
 
 
-
-```{r setup, include=FALSE}
+```{r, echo=FALSE}
 library(stringr)
 library(dplyr)
 library(tidyverse)
