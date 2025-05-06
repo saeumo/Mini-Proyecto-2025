@@ -7,7 +7,6 @@ output: html_document
 
 ¿Cuáles son las 5 fruta/verdura más vendidas?
 ```{r}
-
 productos %>%
   filter(tipo == "fruta/verdura") %>%
   count(nombre, name = "cantidad_total") %>%
