@@ -263,15 +263,57 @@ knitr::kable(ventas_top5, caption = "Top 5 productos más vendidos por unidad")
 
 ¿Cuántas unidades de cada uno se han vendido?
 
-Si consideramos la categoría de FRUTAS Y VERDURAS. ¿Cuáles son los 5 productos 
-más vendidos?
+¿Cuáles son las 5 fruta/verdura más vendidas?
+```{r}
+productos %>%
+  filter(tipo == "fruta/verdura") %>%
+  count(nombre, name = "cantidad_total") %>%
+  arrange(-cantidad_total) %>%
+  head(5)
+```
+Como podemos observar, el plátano es con diferencia la fruta más vendida, seguida
+por su hermana la banana. Luego tenemos pepino, berenjena y kiwi verde. Cabe 
+destacar que estos son los PRODUCTOS más vendidos de esta sección, que no las
+frutas o verduras más vendidas ya que, por ejemplo, la manzana sería una de las 
+más vendidas pero, al haber tantos tipos, ninguna de ellas alcanza el top. Es 
+decir, hay muchas frutas y verduras que pueden haber sido más vendidas, pero 
+ningún tipo concreto de estas llega a alcanzar a otras que no están seccionadas.
 
-¿Cuántos kilos se han vendido de cada uno de estos productos?
+También hay que decir que hemos tenido en cuenta para este ranking las veces que
+han sido vendidos y no los kilos que han sido vendidos.
 
-Si consideramos la categoría de PESCADO. ¿Cuáles son los 5 productos más 
-vendidos? 
 
-¿Cuántos kilos se han vendido de cada uno de estos productos?
+¿Cuántos kg se han vendido de estos productos?
+```{r}
+productos%>%
+  filter(nombre %in% c("PLATANO","PEPINO","KIWI VERDE","BERENJENA","BANANA"))%>%
+  group_by(nombre)%>%
+  summarise(kilos_totales=sum(peso))%>%
+  arrange(-kilos_totales)
+
+```
+Obviamente, el plátano es el que más cantidad se ha comprado. Es interesante que todos los productos aquí se venden cerca de un kilo por vez. Algunos un poco más, otros un poco menos. Pero el kiwi se aleja de ese número un montón. Siendo la compra media de alrededor de un cuarto de kilo.
+
+¿Cuáles son los 5 pescados más vendidos?
+```{r}
+productos %>%
+  filter(tipo == "pescado") %>%
+  count(nombre, name = "cantidad_total") %>%
+  arrange(-cantidad_total) %>%
+  head(5)
+```
+Aquí tenemos  los 5 tipos de pescado que han sido vendidos más veces. Aún así, han sido vendido pocas veces. Esto muestra, comparando con las dos preguntas anteriores, lo poco común que es la compra de pescado en comparativa de la de fruta y verdura.
+
+¿Cuántos kg se han vendido de estos productos?
+```{r}
+productos%>%
+  filter(nombre %in% c("BACALADILLA","SEPIA FRESCA","SEPIA LONJA","LENGUADO FRESC EUROP","SALMON ENTERO"))%>%
+  group_by(nombre)%>%
+  summarise(kilos_totales=sum(peso))%>%
+  arrange(-kilos_totales)
+
+```
+Observamos que el Salmón se vende en más cantidad por compra, esto es porque es entero.
 
 Muestra mediante un gráfico de líneas como ha variado el precio por kilo de las 
 bananas y los plátanos en los tickets disponibles, a lo largo del tiempo.
@@ -380,6 +422,19 @@ Como podemos observar, el producto que cuando se compra, se hace en mayor cantid
 ¿Existe relación entre el importe de la compra y el parking?
 
 ¿Qué día de la semana se vende más?
+
+```{r}
+fecha <- as.Date(tickets$fecha, format = "%Y-%m-%d")
+
+#Definimos los días de la semana
+dias_semana <- c("domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado")
+dia_semana <- dias_semana[as.POSIXlt(fecha)$wday + 1]
+
+ventas_por_dia <- as.factor(dia_semana)
+table(ventas_por_dia)
+
+```
+Como podemos observar, el día de la semana que es más habitual hacer la compra, es decir, el día de la semana que más vende es el sábado.
 
 
 **Conclusión**
