@@ -447,6 +447,52 @@ cat("El gasto medio por compra es:", gasto_medio, "€\n")
 #FIGURA 14
 
 ```{r}
+productos
+tickets
+
+
+
+# Filtrar los productos que contienen ALGUNA de las palabras en la lista 
+#He considerado que es mejor seleccinar solo el aceite de oliva ya que el de girasol tiene un precio más bajo y contamina la evolución del precio.
+terminos_aceite <- c( "virgen") 
+productos_aceite <- productos %>%
+  filter(str_detect(tolower(nombre), paste(terminos_aceite, collapse = "|")))
+
+# Visualizar los productos de aceite encontrados para verificar
+print(unique(productos_aceite$nombre))
+ 
+
+#Unir los productos de aceite con la información de los tickets por el código de factura
+evolucion_precio_aceite <- productos_aceite %>%
+  left_join(tickets, by = "factura") %>%
+  select(factura, fecha, nombre, precio_unitario,hora)
+
+# Creamos una variable de tiempo (por día) para el análisis de la evolución
+evolucion_precio_aceite <- evolucion_precio_aceite %>%
+    mutate(fecha_hora = ymd_hms(paste(fecha, hora), truncated = 3)) %>%
+    mutate(dia = as.Date(fecha))
+# Calculamos el precio promedio del aceite por día
+precio_promedio_aceite_diario <- evolucion_precio_aceite %>%
+    group_by(dia) %>%
+    summarise(precio_medio = mean(precio_unitario, na.rm = TRUE),
+              n_transacciones = n()) %>%
+    filter(n_transacciones > 0) # Asegurarse de que hubo transacciones de aceite ese día
+
+
+#Visualizar la evolución del precio a lo largo del tiempo
+if(nrow(precio_promedio_aceite_diario) > 0) {
+    figura_evolucion_aceite <- ggplot(precio_promedio_aceite_diario, aes(x = dia, y = precio_medio)) +
+      geom_line() +
+      geom_point() +
+      labs(title = "Evolución del Precio Promedio del Aceite a lo Largo del Tiempo",
+           x = "Fecha",
+           y = "Precio Medio por Unidad (€)") +
+      theme_minimal()
+
+    print(figura_evolucion_aceite)
+  } else {
+    print("No hay suficientes datos de aceite para mostrar la evolución del precio.")
+  }
 
 ```
 
