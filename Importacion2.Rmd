@@ -374,7 +374,7 @@ las bananas y los plátanos en los tickets disponibles, a lo largo del tiempo.
 bananas, como se observa, el que más a variado de precio durante el tiempo es 
 el kilo de plátano...*Véase en la Figura 8*
 
-```{r, include = FALSE}
+```{r, echo = FALSE, warning=FALSE}
 
 #Creamos un nuevo df filtrando las bananas y los plátanos.
 
@@ -548,7 +548,7 @@ knitr::kable(media_productos_ok, caption = "Figura 17: Franja del día más frec
 
 7. ¿Qué día de la semana se vende más?
 
-```{r, include =FALSE}
+```{r, include=FALSE}
 fecha <- as.Date(tickets$fecha, format = "%Y-%m-%d")
 
 #Definimos los días de la semana
@@ -556,8 +556,8 @@ dias_semana <- c("domingo", "lunes", "martes", "miércoles", "jueves", "viernes"
 dia_semana <- dias_semana[as.POSIXlt(fecha)$wday + 1]
 
 dia_semana_mas <- as.factor(dia_semana)
+dia_semana_mas <- dia_semana_mas[1]
 dia_semana_mas
-
 ```
 
 - Como podemos observar, el día de la semana que es más habitual hacer la compra, 
@@ -566,8 +566,8 @@ ya que muchas personas aprovechan el fin de semana para hacer la compra de la
 semana, y algunas también tienen libre ese día, lo que les permite ir con más 
 comodidad al supermercado. *Figura 19*
 
-```{r ventas_por_dia, echo=FALSE}
-knitr::kable(ventas_por_dia, caption = "Figura 19: Día más popular para ahcer la compra")
+```{r dia_semana_mas, echo=FALSE}
+knitr::kable(dia_semana_mas, caption = "Figura 19: Día más popular para hacer la compra")
 ```
 
 
