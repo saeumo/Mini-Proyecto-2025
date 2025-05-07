@@ -589,6 +589,24 @@ knitr::kable(media_productos_ok, caption = "Figura 17: Franja del día más frec
 
 
 6. ¿Existe relación entre el importe de la compra y el parking?
+```{r}
+#Visualización (Boxplot)
+figura_parking_importe <- ggplot(tickets, aes(x = parking, y = importe, fill = parking)) +
+  geom_boxplot() +
+  labs(
+    title = "Relación entre Importe de la Compra y Parking",
+    x = "¿Usó Parking?",
+    y = "Importe de la Compra (€)",
+    fill = "¿Usó Parking?"
+  ) +
+  theme_minimal() +
+  scale_x_discrete(labels = c("FALSE" = "No", "TRUE" = "Sí"))
+
+print(figura_parking_importe)
+#El boxplot muestra que la mediana del importe de la compra para los tickets con parking es ligeramente más alta que la mediana para los tickets sin parking. La dispersión (altura de las cajas) parece similar entre ambos grupos, aunque el grupo sin parking tiene algunos outliers con importes más altos.
+#En conclusión, parece haber una ligera tendencia hacia un mayor importe de compra en los tickets donde se usó el parking, aunque la variabilidad de los importes es similar en ambos grupos y no parece que haya mucha relación entre estas dos variables.
+```
+
 
 #Figura 18
 
