@@ -41,7 +41,7 @@ y guardados en dos data frames para un correcto estudio de la información
 obtenida.
 
 
-```{r, echo=FALSE}
+```{r, include=FALSE}
 library(stringr)
 library(dplyr)
 library(tidyverse)
@@ -247,7 +247,7 @@ Dada la vista información, el profesor nos ha planteado las siguientes pregunta
 
 1. ¿Cuáles son los 5 productos, de los vendidos por unidades, con más ventas? 
 
-```{r, echo=FALSE}
+```{r, include=FALSE}
 
 #Filtramos los productos vendidos por unidades (cantidad entera)
 
@@ -265,10 +265,10 @@ ventas_top5
 
 - Los 5 productos más vendidos por unidad son...
 
-En primer lugar se encuentra el filete de pechuga, seguido en segundo lugar 
+- En primer lugar se encuentra el filete de pechuga, seguido en segundo lugar 
 por el queso de cabra en lonchas. En tercer lugar se sitúa el queso Arzúa,
 en cuarto lugar el plátano y, finalmente, en quinto lugar, el pack de atún claro.
-*Véase en la Figura 3*
+ *Véase en la Figura 3*
 
 2. ¿Cuántas unidades de cada uno se han vendido?
 
@@ -301,8 +301,8 @@ Es decir, hay muchas frutas y verduras que pueden haber sido más vendidas, pero
 ningún tipo concreto de estas llega a alcanzar a otras que no están seccionadas.
 *Véase en la Figura 4*
 
-También hay que decir que hemos tenido en cuenta para este ranking las veces que
-han sido vendidos y no los kilos que han sido vendidos.
+- También hay que decir que hemos tenido en cuenta para este ranking las veces 
+que han sido vendidos y no los kilos que han sido vendidos.
 
 ```{r fruta_verdura_mas_vendida, echo=FALSE}
 knitr::kable(fruta_verdura_mas_vendida, caption = "Figura 4: Top 5 verduras o frutas más venidas")
@@ -310,7 +310,7 @@ knitr::kable(fruta_verdura_mas_vendida, caption = "Figura 4: Top 5 verduras o fr
 
 4. ¿Cuántos kg se han vendido de estos productos?
 
-```{r, echo = FALSE}
+```{r, include = FALSE}
 kilos_vendidos <- productos%>%
   filter(nombre %in% c("PLATANO","PEPINO","KIWI VERDE","BERENJENA","BANANA"))%>%
   group_by(nombre)%>%
@@ -322,7 +322,7 @@ kilos_vendidos <- productos%>%
 - Obviamente, el plátano es el que más cantidad se ha comprado. Es interesante 
 que todos los productos aquí se venden cerca de un kilo por vez. Algunos un poco 
 más, otros un poco menos. Pero el kiwi se aleja de ese número un montón. Siendo 
-la compra media de alrededor de un cuarto de kilo.*Figura 5*
+la compra media de alrededor de un cuarto de kilo. *Figura 5*
 
 ```{r kilos_venidos, echo=FALSE}
 knitr::kable(kilos_vendidos, caption = "Figura 5")
@@ -331,7 +331,7 @@ knitr::kable(kilos_vendidos, caption = "Figura 5")
 
 5. ¿Cuáles son los 5 pescados más vendidos?
 
-```{r, echo = FALSE}
+```{r, include = FALSE}
 pescado_mas_vendido <- productos %>%
   filter(tipo == "pescado") %>%
   count(nombre, name = "cantidad_total") %>%
@@ -342,7 +342,7 @@ pescado_mas_vendido <- productos %>%
 - Aquí tenemos  los 5 tipos de pescado que han sido vendidos más veces. Aún así,
 han sido vendido pocas veces. Esto muestra, comparando con las dos preguntas 
 anteriores, lo poco común que es la compra de pescado en comparativa de la de
-fruta y verdura.*Figura 6*
+fruta y verdura. *Figura 6*
 
 ```{r pescado_mas_vendido, echo = FALSE}
 knitr::kable(pescado_mas_vendido, caption = "Figura 6: Top 5 pescados más venidos")
@@ -351,8 +351,8 @@ knitr::kable(pescado_mas_vendido, caption = "Figura 6: Top 5 pescados más venid
 
 6. ¿Cuántos kg se han vendido de estos productos?
 
-```{r, echo = FALSE}
-productos%>%
+```{r, include = FALSE}
+mas_kg <- productos%>%
   filter(nombre %in% c("BACALADILLA","SEPIA FRESCA","SEPIA LONJA","LENGUADO FRESC EUROP","SALMON ENTERO"))%>%
   group_by(nombre)%>%
   summarise(kilos_totales=sum(peso))%>%
@@ -361,16 +361,20 @@ productos%>%
 ```
 
 - Observamos que el Salmón se vende en más cantidad por compra, esto es porque 
-es entero.
+es entero. *Figura 7*
+
+```{r mas_kg, echo=FALSE}
+knitr::kable(mas_kg, caption = "Figura 7")
+```
 
 7. Muestra mediante un gráfico de líneas como ha variado el precio por kilo de 
 las bananas y los plátanos en los tickets disponibles, a lo largo del tiempo.
 
 - La gráfica muestra la fluctuación del precio del kilo de los plátanos y las 
 bananas, como se observa, el que más a variado de precio durante el tiempo es 
-el kilo de plátano...*Véase en la Figura 7*
+el kilo de plátano...*Véase en la Figura 8*
 
-```{r, echo = FALSE}
+```{r, include = FALSE}
 
 #Creamos un nuevo df filtrando las bananas y los plátanos.
 
@@ -397,7 +401,7 @@ ggplot(frutas_con_fecha, aes(x = fecha, y = precio_unitario, color = nombre)) +
   geom_line(aes(group = nombre), size = 1) +
   geom_point(size = 3, shape = 21, fill = "white", stroke = 1) +
   labs(
-    title = "Figura 7: Evolución del Precio por Kilo",
+    title = "Figura 8: Evolución del Precio por Kilo",
     subtitle = "Comparativa entre bananas y plátanos",
     x = "Fecha de compra",
     y = "Precio por kilo (€)",
@@ -414,22 +418,22 @@ ggplot(frutas_con_fecha, aes(x = fecha, y = precio_unitario, color = nombre)) +
 
 
 8. ¿Cuál es la procedencia de los tickets?
-
+#FIGURA 9
 9. ¿Qué ciudad/ pueblo tiene un mayor número de tickets ?
-
+#FIGURA 10
 10. Muestra mediante un diagrama el número de tickets recogidos cada día de las 
 semana.
-
+#FIGURA 11
 11. ¿Si tuvieses que cerrar un día entre semana qué día lo harías?
-
+#FIGURA 12
 
 Nosotros hemos planteado las siguientes:
 
 1. ¿Cuál es el gasto medio por compra?
 
 - El gasto medio por compra es de 45.88€
-
-```{r, echo = FALSE}
+#FIGURA 13?
+```{r, include = FALSE}
 head(tickets)
 #La columna importe en el data frame tickets contiene el gasto total de cada compra. Para calcular el gasto medio por compra, simplemente necesitamos calcular la media de esta columna.
 
@@ -440,6 +444,7 @@ cat("El gasto medio por compra es:", gasto_medio, "€\n")
 ```
 
 2. ¿Cuál ha sido la evolución del precio del aceite con el paso del tiempo?
+#FIGURA 14
 
 ```{r}
 
@@ -449,7 +454,7 @@ cat("El gasto medio por compra es:", gasto_medio, "€\n")
 3. ¿Cuál es el mercadona más popular de Valencia? Es decir,¿Cuál ha sido el más
 visitado?
 
-```{r, echo = FALSE}
+```{r, include = FALSE}
 
 # Crear tabla de visitas por dirección
 tabla_visitas_mercadona <- tickets %>%
@@ -464,15 +469,16 @@ tabla_mas_visitados <- tabla_visitas_mercadona[1,]
 ```
 
 - Como podemos observar, el mercadona que mas se ha visitado ha sido el que se
-encuentra en C/ QUART 120; el cual ha sido visitado un total de 51 veces.
+encuentra en C/ QUART 120; el cual ha sido visitado un total de 51 veces. 
+*Figura 15*
 
 ```{r tabla_mas_visitados, echo=FALSE}
-knitr::kable(tabla_mas_visitados, caption = "Establecimiento más popular")
+knitr::kable(tabla_mas_visitados, caption = "Figura 15: Establecimiento más popular")
 ```
 
 4. ¿En qué parte del día es más común hacer la compra?
 
-```{r, echo = FALSE}
+```{r, include = FALSE}
 #Extraer hora y categorizar partes del día
 tickets_hora <- tickets %>%
   mutate(hora_compra = as.POSIXct(hora, format = "%H:%M"),
@@ -499,7 +505,7 @@ compras_por_turno <- compras_por_turno %>%
   arrange(desc(total_compras))
 
 #Seleccionamos la primera fila ya que la tabla está ordenada de modo decreciente, quedando así el valor mas alto en la primera fila
-compras_por_turno[1,]
+franja_mas_frecuentada <- compras_por_turno[1,]
 
 ```
 
@@ -507,43 +513,50 @@ compras_por_turno[1,]
 es durante la noche, que habiéndola definido como lo hemos hecho nosotros, es 
 entre las 18 y las 21 horas. Esto tiene sentido, ya que coincide con la franja 
 horaria en la que la gente sale de trabajar y por lo tanto tienen tiempo para ir
-al supermercado.
+al supermercado. *Figura 16*
 
-```{r compras_por_turno, echo=FALSE}
-knitr::kable(compras_por_turno, caption = "Franja del día más frecuentada")
+```{r franja_mas_frecuentada, echo=FALSE}
+knitr::kable(franja_mas_frecuentada, caption = "Figura 16: Franja del día más frecuentada")
 ```
 
 
 5. ¿Cuál es el producto que, cuando se compra, se compra en mayor cantidad?
 
-```{r, echo=FALSE}
+```{r, include=FALSE}
 media_productos <- productos %>%
   group_by(nombre) %>%
   summarise(cantidad_media = mean(cantidad)) %>%
   arrange(desc(cantidad_media))
 
 #Seleccionamos la primera fila ya que la tabla está ordenada de modo decreciente, quedando así el valor mas alto en la primera fila
-media_productos[1,]
+media_productos_ok <- media_productos[1,]
 
 ```
 
 - Se observa que el producto que cuando se compra, se hace en mayor 
 cantidad, es la cola sin cafeina, siendo así que cada vez que alguien compra 
-este producto, de media compra 8 unidades.
+este producto, de media compra 8 unidades. *Figura 17*
+
+```{r media_productos_ok, echo=FALSE}
+knitr::kable(media_productos_ok, caption = "Figura 17: Franja del día más frecuentada")
+```
+
 
 6. ¿Existe relación entre el importe de la compra y el parking?
 
+#Figura 18
+
 7. ¿Qué día de la semana se vende más?
 
-```{r, echo =FALSE}
+```{r, include =FALSE}
 fecha <- as.Date(tickets$fecha, format = "%Y-%m-%d")
 
 #Definimos los días de la semana
 dias_semana <- c("domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado")
 dia_semana <- dias_semana[as.POSIXlt(fecha)$wday + 1]
 
-ventas_por_dia <- as.factor(dia_semana)
-table(ventas_por_dia)
+dia_semana_mas <- as.factor(dia_semana)
+dia_semana_mas
 
 ```
 
@@ -551,7 +564,11 @@ table(ventas_por_dia)
 es decir, el día de la semana que más vende es el sábado. Esto tiene sentido,
 ya que muchas personas aprovechan el fin de semana para hacer la compra de la
 semana, y algunas también tienen libre ese día, lo que les permite ir con más 
-comodidad al supermercado.
+comodidad al supermercado. *Figura 19*
+
+```{r ventas_por_dia, echo=FALSE}
+knitr::kable(ventas_por_dia, caption = "Figura 19: Día más popular para ahcer la compra")
+```
 
 
 **Conclusión**
