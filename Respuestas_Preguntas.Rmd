@@ -1,0 +1,148 @@
+---
+title: "Respuestas_Preguntas"
+author: "Arnau López Rodrigo"
+date: "2025-04-27"
+output: html_document
+---
+
+¿Cuáles son las 5 fruta/verdura más vendidas?
+```{r}
+productos %>%
+  filter(tipo == "fruta/verdura") %>%
+  count(nombre, name = "cantidad_total") %>%
+  arrange(-cantidad_total) %>%
+  head(5)
+```
+Como podemos observar, el plátano es con diferencia la fruta más vendida, seguida
+por su hermana la banana. Luego tenemos pepino, berenjena y kiwi verde. Cabe 
+destacar que estos son los PRODUCTOS más vendidos de esta sección, que no las
+frutas o verduras más vendidas ya que, por ejemplo, la manzana sería una de las 
+más vendidas pero, al haber tantos tipos, ninguna de ellas alcanza el top. Es 
+decir, hay muchas frutas y verduras que pueden haber sido más vendidas, pero 
+ningún tipo concreto de estas llega a alcanzar a otras que no están seccionadas.
+
+También hay que decir que hemos tenido en cuenta para este ranking las veces que
+han sido vendidos y no los kilos que han sido vendidos.
+
+
+¿Cuántos kg se han vendido de estos productos?
+```{r}
+productos%>%
+  filter(nombre %in% c("PLATANO","PEPINO","KIWI VERDE","BERENJENA","BANANA"))%>%
+  group_by(nombre)%>%
+  summarise(kilos_totales=sum(peso))%>%
+  arrange(-kilos_totales)
+
+```
+Obviamente, el plátano es el que más cantidad se ha comprado. Es interesante que todos los productos aquí se venden cerca de un kilo por vez. Algunos un poco más, otros un poco menos. Pero el kiwi se aleja de ese número un montón. Siendo la compra media de alrededor de un cuarto de kilo.
+
+¿Cuáles son los 5 pescados más vendidos?
+```{r}
+productos %>%
+  filter(tipo == "pescado") %>%
+  count(nombre, name = "cantidad_total") %>%
+  arrange(-cantidad_total) %>%
+  head(5)
+```
+Aquí tenemos  los 5 tipos de pescado que han sido vendidos más veces. Aún así, han sido vendido pocas veces. Esto muestra, comparando con las dos preguntas anteriores, lo poco común que es la compra de pescado en comparativa de la de fruta y verdura.
+
+¿Cuántos kg se han vendido de estos productos?
+```{r}
+productos%>%
+  filter(nombre %in% c("BACALADILLA","SEPIA FRESCA","SEPIA LONJA","LENGUADO FRESC EUROP","SALMON ENTERO"))%>%
+  group_by(nombre)%>%
+  summarise(kilos_totales=sum(peso))%>%
+  arrange(-kilos_totales)
+
+```
+Observamos que el Salmón se vende en más cantidad por compra, esto es porque es entero.
+
+
+¿Cuál es el gasto medio por compra?
+```{r}
+head(tickets)
+#La columna importe en el data frame tickets contiene el gasto total de cada compra. Para calcular el gasto medio por compra, simplemente necesitamos calcular la media de esta columna.
+
+gasto_medio <- mean(tickets$importe)
+
+# Imprimir el resultado
+cat("El gasto medio por compra es:", gasto_medio, "€\n")
+```
+
+¿Cuál ha sido la evolución del precio del aceite con el paso del tiempo?
+```{r}
+
+```
+
+
+¿Cuál es el mercadona más popular de Valencia? Es decir,¿Cuál ha sido el más
+visitado?
+
+```{r}
+library(dplyr)
+library(stringr)
+
+# Crear tabla de visitas por dirección
+tabla_visitas_mercadona <- tickets %>%
+  mutate(direccion = str_trim(direccion)) %>%  
+  group_by(direccion) %>%                      
+  summarise(visitas = n()) %>%
+  arrange(desc(visitas))                       
+
+#Seleccionamos la primera fila ya que la tabla está ordenada de modo decreciente, quedando así el valor mas alto en la primera fila
+tabla_visitas_mercadona[1,]
+
+```
+Como podemos observar, el mercadona que mas se ha visitado ha sido el que se encuentra en C/ QUART 120; el cual ha sido visitado un total de 51 veces.
+
+
+¿En qué parte del día es más común hacer la compra?
+
+```{r}
+library(dplyr)
+library(lubridate)
+
+#Extraer hora y categorizar partes del día
+tickets_hora <- tickets %>%
+  mutate(hora_compra = as.POSIXct(hora, format = "%H:%M"),
+      parte_dia = case_when(
+      hour(hora_compra) >= 6 & hour(hora_compra) < 12 ~ "Mañana",
+      hour(hora_compra) >= 12 & hour(hora_compra) < 15 ~ "Mediodía",
+      hour(hora_compra) >= 15 & hour(hora_compra) < 18 ~ "Tarde",
+      hour(hora_compra) >= 18 & hour(hora_compra) < 21 ~ "Noche",
+      TRUE ~ "Madrugada"),
+      parte_dia = factor(parte_dia, levels = c("Mañana", "Mediodía", "Tarde", "Noche", "Madrugada"))
+  )
+
+#Contar compras por parte del día
+compras_por_turno <- tickets_hora %>%
+  count(parte_dia, name = "total_compras")
+
+#Eliminar la primera columna (factura) ya que no nos interesa
+compras_por_turno <- compras_por_turno[, -1]
+
+#Agrupar por parte del día y sumar para ver en que parte del día es más común hacer la compra
+compras_por_turno <- compras_por_turno %>%
+  group_by(parte_dia) %>%
+  summarise(total_compras = sum(total_compras)) %>%
+  arrange(desc(total_compras))
+
+#Seleccionamos la primera fila ya que la tabla está ordenada de modo decreciente, quedando así el valor mas alto en la primera fila
+compras_por_turno[1,]
+
+```
+Como podemos observar, la parte del día donde es más común hacer la compra es durante la noche, que habiéndola definido como lo hemos hecho nosotros, es entre las 18 y las 21 horas.
+
+¿Cuál es el producto que, cuando se compra, se compra en mayor cantidad?
+
+```{r}
+media_productos <- productos %>%
+  group_by(nombre) %>%
+  summarise(cantidad_media = mean(cantidad)) %>%
+  arrange(desc(cantidad_media))
+
+#Seleccionamos la primera fila ya que la tabla está ordenada de modo decreciente, quedando así el valor mas alto en la primera fila
+media_productos[1,]
+
+```
+Como podemos observar, el producto que cuando se compra, se hace en mayor cantidad, es la cola sin cafeina, siendo así que cada vez que alguien compra este producto, de media compra 8 unidades.

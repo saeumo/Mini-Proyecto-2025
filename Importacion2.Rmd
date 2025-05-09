@@ -1,15 +1,52 @@
 ---
-title: "Importación"
-author: "Grupo 7"
-date: "2025-04-12"
+title: "Informe MiniProyecto 2025"
+description: "Tratamiento de los Datos"
+author: "Grupo F: Samantha Morata Sánchez, Xavi Ponsoda Langon, Arnau López 
+Rodrigo, Jorge Cano Cortina y Àngela Adell Castell"
+date: ""
 output: html_document
 ---
-Este documento almacena en dos DataFrames los tickets ya pasados a txt
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+**Introducción**
+
+En este proyecto de la asignatura Tratamiento de los Datos del Grado Ciencia de
+Datos, se encomienda la tarea del estudio de los datos de uno de los 
+supermercados líder en España: Mercadona.
+Para ello, han sido proporcionados una gran cantidad de tickets que han 
+permitido un buen estudio del comportamiento del mercado y de sus clientes.
 
 
-```{r}
+**Gestión de los datos**
+
+Para la realización del MiniProyecto, ha sido necesario llevar a cabo un
+tratamiento previo de los tickets proporcionados, iniciando con su filtrado, 
+ya que algunos de ellos no correspondían a Mercadona, sino a otros supermercados
+que no son relevantes para nuestro  estudio.
+
+Para el correcto estudio, se ha hecho uso de las siguientes librerías...
+Stringr para el majnejo de datos de tipo string.
+Dplyr para limpiar, resumir, ordenar y transformar datasets.
+Tidyverse para análisis de datos: importar, limpiar, transformar, visualizar y 
+modelar.
+Lubridate para tratar fechas.
+Ggplot2 para la creación de gráficas.
+
+A continuación, estos tickets han sido importados de un formato .pdf a un
+formato más manejable tipo .txt y posteriormente han sido procesados con RStudio
+y guardados en dos data frames para un correcto estudio de la información 
+obtenida.
+
+
+```{r, include=FALSE}
 library(stringr)
 library(dplyr)
+library(tidyverse)
+library(lubridate)
+library(ggplot2)
 
 # Ruta de la carpeta con los tickets
 ruta <- "data_txt"
@@ -21,15 +58,22 @@ productos <- data.frame()
 
 # Función para limpiar nombres con múltiples espacios
 limpiar_nombre <- function(nombre) {
+  # Eliminar números
+  nombre <- str_remove_all(nombre, "\\d")
+  
+  # Verificar si hay más de un espacio consecutivo
   if (str_detect(nombre, "\\s{2,}")) {
     partes <- str_split(nombre, "\\s{2,}")[[1]]
+    
+    # Si hay exactamente dos partes, se devuelve la más larga
     if (length(partes) == 2) {
-      return(ifelse(nchar(partes[1]) > nchar(partes[2]), partes[1], partes[2]))
+      nombre <- ifelse(nchar(partes[1]) > nchar(partes[2]), partes[1], partes[2])
     }
   }
-  return(nombre)
+  
+  # Eliminar los espacios al inicio y al final
+  return(str_trim(nombre))
 }
-
 # Bucle que recorre todos los archivos
 for (file in archivos) {
   lines <- readLines(file, encoding = "UTF-8")
@@ -91,6 +135,7 @@ for (file in archivos) {
               precio_unitario = precio_unitario,
               precio_total = total,
               peso = NA,
+              tipo = factor("otro", levels = c("pescado", "fruta/verdura","otro")),
               stringsAsFactors = FALSE
             ))
             productos_en_ticket <- productos_en_ticket + 1
@@ -105,6 +150,8 @@ for (file in archivos) {
         peso <- as.numeric(str_replace(partes[2], ",", "."))
         precio_unitario <- as.numeric(str_replace(partes[3], ",", "."))
         total <- as.numeric(str_replace(partes[4], ",", "."))
+        tipo<- ifelse(str_detect(lines[i - 1], "\\d"), "fruta/verdura","pescado")
+        
         
         
         if(!(length(codigo_factura)==0|
@@ -121,6 +168,7 @@ for (file in archivos) {
             precio_unitario = precio_unitario,
             precio_total = total,
             peso = peso,
+            tipo = factor(tipo, levels = c("pescado", "fruta/verdura","otro")),
             stringsAsFactors = FALSE
           ))
           productos_en_ticket <- productos_en_ticket + 1
@@ -158,6 +206,441 @@ tickets<- tickets%>%
   filter(n_productos==max(n_productos))%>%
   unique()
 
+figura1 <- head(tickets)
+figura2 <- head(productos)
+```
+
+En el primer data frame, se ha guardado la información de cada compra y 
+está referenciado en la variable 'df_tickets', el cual contiene la siguiente
+información: número de factura, direccion del establecimiento, fecha de compra,
+hora de compra, número de productos, importe de la compra, parking y método de
+pago. *Véase en la Figura 1.*
+
+```{r mostrar-df-tickets, echo=FALSE}
+knitr::kable(figura1, caption = "Figura 1: Información de los tickets de Mercadona")
+```
+
+
+
+En el segundo data frame, se ha guardado la información de los productos de cada
+compra distinguiendo entre productos especiales que van al peso como por ejmeplo
+la fruta, la verdura o el pescado. Los productos quedan referenciados en la 
+variable 'df_productos', la cual contiene la siguiente información: el número de
+factura de dónde se compró dicho producto, la cantidad del producto, el nombre 
+del producto, el peso (si fuera un producto al peso), el precio por unidad y el
+precio total del producto. *Véase en la figura 2.*
+
+```{r mostrar-df-productos, echo=FALSE}
+knitr::kable(figura2, caption = "Figura 2: Información de las compras en Mercadona")
+```
+
+
+
+**Preguntas**
+
+A partir de estos data frames, haremos un análisis exploratorio para responder a
+algunas de las preguntas más comunes que uno se podría hacer cuando piensa en 
+datos y características de un supermercado.
+
+
+Dada la vista información, el profesor nos ha planteado las siguientes preguntas:
+
+1. ¿Cuáles son los 5 productos, de los vendidos por unidades, con más ventas? 
+
+```{r, include=FALSE}
+
+#Filtramos los productos vendidos por unidades (cantidad entera)
+
+mas_vendidos <- productos %>% filter(cantidad %% 1 == 0)
+
+
+#Agrupamos por nombre del producto, calculamos la suma del precio_total por producto y ordenamos de mayor a menor según las ventas totales.
+#Por último seleccionamos los 5 productos con mayores ventas.
+
+ventas_top5 <- mas_vendidos %>% group_by(nombre) %>% summarise(ventas_totales = round(sum(precio_total, na.rm = TRUE))) %>% arrange(desc(ventas_totales)) %>% slice_head(n = 5)
+
+ventas_top5
 
 ```
 
+- Los 5 productos más vendidos por unidad son...
+
+- En primer lugar se encuentra el filete de pechuga, seguido en segundo lugar 
+por el queso de cabra en lonchas. En tercer lugar se sitúa el queso Arzúa,
+en cuarto lugar el plátano y, finalmente, en quinto lugar, el pack de atún claro.
+ *Véase en la Figura 3*
+
+2. ¿Cuántas unidades de cada uno se han vendido?
+
+- Se han registrado ventas de 153 unidades de filete de pechuga, así como 153 
+unidades de queso de cabra en lonchas. Asimismo, se han vendido 141 unidades 
+de queso Arzúa, 132 unidades de plátano y 125 unidades de atún en aceite de 
+oliva. *Véase en la Figura 3*
+
+```{r ventas_top5, echo=FALSE}
+knitr::kable(ventas_top5, caption = "Figura 3: Top 5 productos más vendidos por unidad")
+```
+
+
+3. ¿Cuáles son las 5 fruta/verdura más vendidas?
+
+```{r, echo = FALSE}
+fruta_verdura_mas_vendida <- productos %>%
+  filter(tipo == "fruta/verdura") %>%
+  count(nombre, name = "cantidad_total") %>%
+  arrange(-cantidad_total) %>%
+  head(5)
+```
+
+- Como podemos observar, el plátano es con diferencia la fruta más vendida,
+seguida por su hermana la banana. Luego tenemos pepino, berenjena y kiwi verde.
+Cabe destacar que estos son los PRODUCTOS más vendidos de esta sección, que no
+las frutas o verduras más vendidas ya que, por ejemplo, la manzana sería una de
+las más vendidas pero, al haber tantos tipos, ninguna de ellas alcanza el top. 
+Es decir, hay muchas frutas y verduras que pueden haber sido más vendidas, pero 
+ningún tipo concreto de estas llega a alcanzar a otras que no están seccionadas.
+*Véase en la Figura 4*
+
+- También hay que decir que hemos tenido en cuenta para este ranking las veces 
+que han sido vendidos y no los kilos que han sido vendidos.
+
+```{r fruta_verdura_mas_vendida, echo=FALSE}
+knitr::kable(fruta_verdura_mas_vendida, caption = "Figura 4: Top 5 verduras o frutas más venidas")
+```
+
+4. ¿Cuántos kg se han vendido de estos productos?
+
+```{r, include = FALSE}
+kilos_vendidos <- productos%>%
+  filter(nombre %in% c("PLATANO","PEPINO","KIWI VERDE","BERENJENA","BANANA"))%>%
+  group_by(nombre)%>%
+  summarise(kilos_totales=sum(peso))%>%
+  arrange(-kilos_totales)
+
+```
+
+- Obviamente, el plátano es el que más cantidad se ha comprado. Es interesante 
+que todos los productos aquí se venden cerca de un kilo por vez. Algunos un poco 
+más, otros un poco menos. Pero el kiwi se aleja de ese número un montón. Siendo 
+la compra media de alrededor de un cuarto de kilo. *Figura 5*
+
+```{r kilos_venidos, echo=FALSE}
+knitr::kable(kilos_vendidos, caption = "Figura 5")
+```
+
+
+5. ¿Cuáles son los 5 pescados más vendidos?
+
+```{r, include = FALSE}
+pescado_mas_vendido <- productos %>%
+  filter(tipo == "pescado") %>%
+  count(nombre, name = "cantidad_total") %>%
+  arrange(-cantidad_total) %>%
+  head(5)
+```
+
+- Aquí tenemos  los 5 tipos de pescado que han sido vendidos más veces. Aún así,
+han sido vendido pocas veces. Esto muestra, comparando con las dos preguntas 
+anteriores, lo poco común que es la compra de pescado en comparativa de la de
+fruta y verdura. *Figura 6*
+
+```{r pescado_mas_vendido, echo = FALSE}
+knitr::kable(pescado_mas_vendido, caption = "Figura 6: Top 5 pescados más venidos")
+```
+
+
+6. ¿Cuántos kg se han vendido de estos productos?
+
+```{r, include = FALSE}
+mas_kg <- productos%>%
+  filter(nombre %in% c("BACALADILLA","SEPIA FRESCA","SEPIA LONJA","LENGUADO FRESC EUROP","SALMON ENTERO"))%>%
+  group_by(nombre)%>%
+  summarise(kilos_totales=sum(peso))%>%
+  arrange(-kilos_totales)
+
+```
+
+- Observamos que el Salmón se vende en más cantidad por compra, esto es porque 
+es entero. *Figura 7*
+
+```{r mas_kg, echo=FALSE}
+knitr::kable(mas_kg, caption = "Figura 7")
+```
+
+7. Muestra mediante un gráfico de líneas como ha variado el precio por kilo de 
+las bananas y los plátanos en los tickets disponibles, a lo largo del tiempo.
+
+- La gráfica muestra la fluctuación del precio del kilo de los plátanos y las 
+bananas, como se observa, el que más a variado de precio durante el tiempo es 
+el kilo de plátano...*Véase en la Figura 8*
+
+```{r, echo = FALSE, warning=FALSE}
+
+#Creamos un nuevo df filtrando las bananas y los plátanos.
+
+frutas_filtradas <- productos %>%
+  filter(nombre %in% c("BANANA", "PLATANO")) %>%
+  filter(!is.na(precio_unitario)) %>%
+  select(factura, nombre, precio_unitario)
+
+#Creamos otro data frame con las fechas de cada factura.
+
+tickets_fechas <- tickets %>%
+  select(factura, fecha) %>%
+  mutate(fecha = ymd(fecha))  # Asegurar formato fecha
+
+#Unimos en otro data frame la fecha con el producto uniéndolo a partit del número
+#de factura.
+
+frutas_con_fecha <- frutas_filtradas %>%
+  left_join(tickets_fechas, by = "factura")
+
+#Representamos la evolución del precio por kilo a lo largo del tiempo.
+
+ggplot(frutas_con_fecha, aes(x = fecha, y = precio_unitario, color = nombre)) +
+  geom_line(aes(group = nombre), size = 1) +
+  geom_point(size = 3, shape = 21, fill = "white", stroke = 1) +
+  labs(
+    title = "Figura 8: Evolución del Precio por Kilo",
+    subtitle = "Comparativa entre bananas y plátanos",
+    x = "Fecha de compra",
+    y = "Precio por kilo (€)",
+    color = "Fruta"
+  ) +
+  theme_light(base_size = 13) +
+  theme(
+    plot.title = element_text(face = "bold", size = 16),
+    plot.subtitle = element_text(size = 12),
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    legend.position = "top"
+  )
+```
+
+
+8. ¿Cuál es la procedencia de los tickets?
+#FIGURA 9
+9. ¿Qué ciudad/ pueblo tiene un mayor número de tickets ?
+#FIGURA 10
+10. Muestra mediante un diagrama el número de tickets recogidos cada día de las 
+semana.
+#FIGURA 11
+11. ¿Si tuvieses que cerrar un día entre semana qué día lo harías?
+#FIGURA 12
+
+Nosotros hemos planteado las siguientes:
+
+1. ¿Cuál es el gasto medio por compra?
+
+- El gasto medio por compra es de 45.88€
+#FIGURA 13?
+```{r, include = FALSE}
+head(tickets)
+#La columna importe en el data frame tickets contiene el gasto total de cada compra. Para calcular el gasto medio por compra, simplemente necesitamos calcular la media de esta columna.
+
+gasto_medio <- mean(tickets$importe)
+
+# Imprimir el resultado
+cat("El gasto medio por compra es:", gasto_medio, "€\n")
+```
+
+2. ¿Cuál ha sido la evolución del precio del aceite con el paso del tiempo?
+#FIGURA 14
+
+```{r}
+productos
+tickets
+
+
+
+# Filtrar los productos que contienen ALGUNA de las palabras en la lista 
+#He considerado que es mejor seleccinar solo el aceite de oliva ya que el de girasol tiene un precio más bajo y contamina la evolución del precio.
+terminos_aceite <- c( "virgen") 
+productos_aceite <- productos %>%
+  filter(str_detect(tolower(nombre), paste(terminos_aceite, collapse = "|")))
+
+# Visualizar los productos de aceite encontrados para verificar
+print(unique(productos_aceite$nombre))
+ 
+
+#Unir los productos de aceite con la información de los tickets por el código de factura
+evolucion_precio_aceite <- productos_aceite %>%
+  left_join(tickets, by = "factura") %>%
+  select(factura, fecha, nombre, precio_unitario,hora)
+
+# Creamos una variable de tiempo (por día) para el análisis de la evolución
+evolucion_precio_aceite <- evolucion_precio_aceite %>%
+    mutate(fecha_hora = ymd_hms(paste(fecha, hora), truncated = 3)) %>%
+    mutate(dia = as.Date(fecha))
+# Calculamos el precio promedio del aceite por día
+precio_promedio_aceite_diario <- evolucion_precio_aceite %>%
+    group_by(dia) %>%
+    summarise(precio_medio = mean(precio_unitario, na.rm = TRUE),
+              n_transacciones = n()) %>%
+    filter(n_transacciones > 0) # Asegurarse de que hubo transacciones de aceite ese día
+
+
+#Visualizar la evolución del precio a lo largo del tiempo
+if(nrow(precio_promedio_aceite_diario) > 0) {
+    figura_evolucion_aceite <- ggplot(precio_promedio_aceite_diario, aes(x = dia, y = precio_medio)) +
+      geom_line() +
+      geom_point() +
+      labs(title = "Evolución del Precio Promedio del Aceite a lo Largo del Tiempo",
+           x = "Fecha",
+           y = "Precio Medio por Unidad (€)") +
+      theme_minimal()
+
+    print(figura_evolucion_aceite)
+  } else {
+    print("No hay suficientes datos de aceite para mostrar la evolución del precio.")
+  }
+
+```
+
+
+3. ¿Cuál es el mercadona más popular de Valencia? Es decir,¿Cuál ha sido el más
+visitado?
+
+```{r, include = FALSE}
+
+# Crear tabla de visitas por dirección
+tabla_visitas_mercadona <- tickets %>%
+  mutate(direccion = str_trim(direccion)) %>%  
+  group_by(direccion) %>%                      
+  summarise(visitas = n()) %>%
+  arrange(desc(visitas))                       
+
+#Seleccionamos la primera fila ya que la tabla está ordenada de modo decreciente, quedando así el valor mas alto en la primera fila
+tabla_mas_visitados <- tabla_visitas_mercadona[1,]
+
+```
+
+- Como podemos observar, el mercadona que mas se ha visitado ha sido el que se
+encuentra en C/ QUART 120; el cual ha sido visitado un total de 51 veces. 
+*Figura 15*
+
+```{r tabla_mas_visitados, echo=FALSE}
+knitr::kable(tabla_mas_visitados, caption = "Figura 15: Establecimiento más popular")
+```
+
+4. ¿En qué parte del día es más común hacer la compra?
+
+```{r, include = FALSE}
+#Extraer hora y categorizar partes del día
+tickets_hora <- tickets %>%
+  mutate(hora_compra = as.POSIXct(hora, format = "%H:%M"),
+      parte_dia = case_when(
+      hour(hora_compra) >= 6 & hour(hora_compra) < 12 ~ "Mañana",
+      hour(hora_compra) >= 12 & hour(hora_compra) < 15 ~ "Mediodía",
+      hour(hora_compra) >= 15 & hour(hora_compra) < 18 ~ "Tarde",
+      hour(hora_compra) >= 18 & hour(hora_compra) < 21 ~ "Noche",
+      TRUE ~ "Madrugada"),
+      parte_dia = factor(parte_dia, levels = c("Mañana", "Mediodía", "Tarde", "Noche", "Madrugada"))
+  )
+
+#Contar compras por parte del día
+compras_por_turno <- tickets_hora %>%
+  count(parte_dia, name = "total_compras")
+
+#Eliminar la primera columna (factura) ya que no nos interesa
+compras_por_turno <- compras_por_turno[, -1]
+
+#Agrupar por parte del día y sumar para ver en que parte del día es más común hacer la compra
+compras_por_turno <- compras_por_turno %>%
+  group_by(parte_dia) %>%
+  summarise(total_compras = sum(total_compras)) %>%
+  arrange(desc(total_compras))
+
+#Seleccionamos la primera fila ya que la tabla está ordenada de modo decreciente, quedando así el valor mas alto en la primera fila
+franja_mas_frecuentada <- compras_por_turno[1,]
+
+```
+
+- Como podemos observar, la parte del día donde es más común hacer la compra 
+es durante la noche, que habiéndola definido como lo hemos hecho nosotros, es 
+entre las 18 y las 21 horas. Esto tiene sentido, ya que coincide con la franja 
+horaria en la que la gente sale de trabajar y por lo tanto tienen tiempo para ir
+al supermercado. *Figura 16*
+
+```{r franja_mas_frecuentada, echo=FALSE}
+knitr::kable(franja_mas_frecuentada, caption = "Figura 16: Franja del día más frecuentada")
+```
+
+
+5. ¿Cuál es el producto que, cuando se compra, se compra en mayor cantidad?
+
+```{r, include=FALSE}
+media_productos <- productos %>%
+  group_by(nombre) %>%
+  summarise(cantidad_media = mean(cantidad)) %>%
+  arrange(desc(cantidad_media))
+
+#Seleccionamos la primera fila ya que la tabla está ordenada de modo decreciente, quedando así el valor mas alto en la primera fila
+media_productos_ok <- media_productos[1,]
+
+```
+
+- Se observa que el producto que cuando se compra, se hace en mayor 
+cantidad, es la cola sin cafeina, siendo así que cada vez que alguien compra 
+este producto, de media compra 8 unidades. *Figura 17*
+
+```{r media_productos_ok, echo=FALSE}
+knitr::kable(media_productos_ok, caption = "Figura 17: Franja del día más frecuentada")
+```
+
+
+6. ¿Existe relación entre el importe de la compra y el parking?
+```{r}
+#Visualización (Boxplot)
+figura_parking_importe <- ggplot(tickets, aes(x = parking, y = importe, fill = parking)) +
+  geom_boxplot() +
+  labs(
+    title = "Relación entre Importe de la Compra y Parking",
+    x = "¿Usó Parking?",
+    y = "Importe de la Compra (€)",
+    fill = "¿Usó Parking?"
+  ) +
+  theme_minimal() +
+  scale_x_discrete(labels = c("FALSE" = "No", "TRUE" = "Sí"))
+
+print(figura_parking_importe)
+#El boxplot muestra que la mediana del importe de la compra para los tickets con parking es ligeramente más alta que la mediana para los tickets sin parking. La dispersión (altura de las cajas) parece similar entre ambos grupos, aunque el grupo sin parking tiene algunos outliers con importes más altos.
+#En conclusión, parece haber una ligera tendencia hacia un mayor importe de compra en los tickets donde se usó el parking, aunque la variabilidad de los importes es similar en ambos grupos y no parece que haya mucha relación entre estas dos variables.
+```
+
+
+#Figura 18
+
+7. ¿Qué día de la semana se vende más?
+
+```{r, include=FALSE}
+fecha <- as.Date(tickets$fecha, format = "%Y-%m-%d")
+
+#Definimos los días de la semana
+dias_semana <- c("domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado")
+dia_semana <- dias_semana[as.POSIXlt(fecha)$wday + 1]
+
+dia_semana_mas <- as.factor(dia_semana)
+dia_semana_mas <- dia_semana_mas[1]
+dia_semana_mas
+```
+
+- Como podemos observar, el día de la semana que es más habitual hacer la compra, 
+es decir, el día de la semana que más vende es el sábado. Esto tiene sentido,
+ya que muchas personas aprovechan el fin de semana para hacer la compra de la
+semana, y algunas también tienen libre ese día, lo que les permite ir con más 
+comodidad al supermercado. *Figura 19*
+
+```{r dia_semana_mas, echo=FALSE}
+knitr::kable(dia_semana_mas, caption = "Figura 19: Día más popular para hacer la compra")
+```
+
+
+**Conclusión**
+
+En esta primera fase del proyecto, hemos aprendido a importar documentos .pdf 
+así como almacenar de forma iterativa en data frames información de ficheros
+.txt. Además, hemos ampliado nuestro conocimeinto sobre librerías como stringr,
+tidyverse o dplyr y hemos aprendido el funcionamiento de la aplicación Git Hub 
+que nos ha servido como gran herramienta para poder trabajar de forma remota 
+de manera colaborativa permitiéndonos a partir de un repositorio público con 
+el nombre de 'Mini-Proyecto-2025' a partir del uso del "Version Control".
