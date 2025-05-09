@@ -17,7 +17,7 @@ En este proyecto de la asignatura Tratamiento de los Datos del Grado Ciencia de
 Datos, se encomienda la tarea del estudio de los datos de uno de los 
 supermercados líder en España: Mercadona.
 Para ello, han sido proporcionados una gran cantidad de tickets que han 
-permitido un buen estudio del comportamiento del mercado y de sus clientes.
+permitido un buen estudio  del comportamiento del mercado y de sus clientes.
 
 
 **Gestión de los datos**
@@ -418,13 +418,95 @@ ggplot(frutas_con_fecha, aes(x = fecha, y = precio_unitario, color = nombre)) +
 
 
 8. ¿Cuál es la procedencia de los tickets?
+- Se muestra la lista de supermercados (direcciones) ordenada de mayor a menor según el número de tickets (n_tickets). La primera fila corresponde a la dirección del supermercado con más tickets.
+```{r}
+procedencia_tickets <- tickets %>%
+  group_by(direccion) %>%
+  summarise(
+    n_tickets = n()                    # número de tickets
+    ) %>%
+  arrange(desc(n_tickets))
+
+# Mostrar los primeros resultados
+top_tickets <- procedencia_tickets %>% slice(1:10)
+knitr::kable(top_tickets, caption = "Figura 9: Top de supermercados por número de tickets")
+```
+
 #FIGURA 9
 9. ¿Qué ciudad/ pueblo tiene un mayor número de tickets ?
+- Hay muchos tickets de Valencia, de Alicante, de Garrucha y luego hay otras direcciones.
+```{r}
+# Asegurarnos de que tickets_ciudad ya contiene la columna ciudad
+if(!"ciudad" %in% names(tickets_ciudad)) {
+  stop("La columna 'ciudad' no existe. Asegúrate de haber ejecutado el mapeo en el chunk anterior.")
+}
+
+# Crear un resumen y ordenar de mayor a menor
+resumen_ciudad <- tickets_ciudad %>%
+  group_by(ciudad) %>%
+  summarise(
+    n_tickets = n()
+  ) %>%
+  arrange(desc(n_tickets))
+
+# Excluir entradas sin ciudad asignada (NA) y luego mostrar top 10
+top_ciudades <- resumen_ciudad %>%
+  filter(!is.na(ciudad)) %>%
+  slice(1:10)
+knitr::kable(top_ciudades, caption = "Figura 10: Top de ciudades/pueblos por número de tickets (sin NA)")
+```
+
 #FIGURA 10
 10. Muestra mediante un diagrama el número de tickets recogidos cada día de las 
 semana.
+```{r}
+# Preparamos un factor para que los días salgan ordenados de lunes a domingo
+niveles_dias <- c("lunes","martes","miércoles","jueves","viernes","sábado","domingo")
+
+tickets %>%
+  # Aseguramos que fecha es Date y extraemos el día de la semana
+  mutate(
+    fecha       = as.Date(fecha, format = "%Y-%m-%d"),
+    dia_semana  = weekdays(fecha, abbreviate = FALSE),
+    dia_semana  = factor(dia_semana, levels = niveles_dias)
+  ) %>%
+  # Contamos tickets por día
+  count(dia_semana, name = "n_tickets") %>%
+  # Dibujamos el diagrama de barras
+  ggplot(aes(x = dia_semana, y = n_tickets)) +
+    geom_col() +
+    labs(
+      title = "Figura 10: Número de tickets por día de la semana",
+      x     = "Día de la semana",
+      y     = "Número de tickets"
+    ) +
+    theme_minimal()
+```
+
 #FIGURA 11
 11. ¿Si tuvieses que cerrar un día entre semana qué día lo harías?
+- Como se contempla a continuación, el domingo es el día con menos afluencia de toda la semana, pero el día con menor afluencia entre semana es el jueves. Por lo tanto, si tuviesemos que cerrar un día entre semana este sería el jueves.
+```{r}
+#1) Definimos orden de días y creamos la variable dia_semana
+niveles_dias <- c("lunes","martes","miércoles","jueves","viernes","sábado","domingo")
+tickets2 <- tickets %>%
+  mutate(
+    fecha      = as.Date(fecha, format = "%Y-%m-%d"),
+    dia_semana = weekdays(fecha, abbreviate = FALSE),
+    dia_semana = factor(dia_semana, levels = niveles_dias)
+  )
+
+# 2) Agrupamos y contamos
+resumen_dias <- tickets2 %>%
+  group_by(dia_semana) %>%
+  summarise(n_tickets = n()) %>%
+  ungroup() %>%
+  arrange(match(dia_semana, niveles_dias))
+
+# 3) Mostramos la tabla completa
+knitr::kable(resumen_dias, caption = "Tabla: Número de tickets por día de la semana")
+```
+
 #FIGURA 12
 
 Nosotros hemos planteado las siguientes:
