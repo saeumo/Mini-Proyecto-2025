@@ -11,7 +11,7 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-**Introducción**
+**1. Introducción**
 
 En este proyecto de la asignatura Tratamiento de los Datos del Grado Ciencia de
 Datos, se encomienda la tarea del estudio de los datos de uno de los 
@@ -20,7 +20,7 @@ Para ello, han sido proporcionados una gran cantidad de tickets que han
 permitido un buen estudio del comportamiento del mercado y de sus clientes.
 
 
-**Gestión de los datos**
+**2. Tratamiento de los datos**
 
 Para la realización del MiniProyecto, ha sido necesario llevar a cabo un
 tratamiento previo de los tickets proporcionados, iniciando con su filtrado, 
@@ -236,7 +236,7 @@ knitr::kable(figura2, caption = "Figura 2: Información de las compras en Mercad
 
 
 
-**Preguntas**
+**3. Preguntas**
 
 A partir de estos data frames, haremos un análisis exploratorio para responder a
 algunas de las preguntas más comunes que uno se podría hacer cuando piensa en 
@@ -342,7 +342,8 @@ pescado_mas_vendido <- productos %>%
 - Aquí tenemos  los 5 tipos de pescado que han sido vendidos más veces. Aún así,
 han sido vendido pocas veces. Esto muestra, comparando con las dos preguntas 
 anteriores, lo poco común que es la compra de pescado en comparativa de la de
-fruta y verdura. *Figura 6*
+fruta y verdura. 
+*Figura 6*
 
 ```{r pescado_mas_vendido, echo = FALSE}
 knitr::kable(pescado_mas_vendido, caption = "Figura 6: Top 5 pescados más venidos")
@@ -360,8 +361,7 @@ mas_kg <- productos%>%
 
 ```
 
-- Observamos que el Salmón se vende en más cantidad por compra, esto es porque 
-es entero. *Figura 7*
+- Observamos que la Bacaladilla se vende en más cantidad por compra. *Figura 7*
 
 ```{r mas_kg, echo=FALSE}
 knitr::kable(mas_kg, caption = "Figura 7")
@@ -444,13 +444,17 @@ cat("El gasto medio por compra es:", gasto_medio, "€\n")
 ```
 
 2. ¿Cuál ha sido la evolución del precio del aceite con el paso del tiempo?
-#FIGURA 14
 
-```{r}
-productos
-tickets
+- En los datos proporcionados se observan tres tipos de aceite distintos: 
+"ACEITE VIRGEN EXTRA", "VIRGEN EXTRA", "ACEITE VIRGEN EX" y "ACEITE VIRGEN". 
+Por tanto, para estudiar la evolución del precio del aceite a lo largo del 
+tiempo, se ha hecho un promedio del precio de los tres tipos durante el tiempo.
+Como se observa en la gráfica el precio del aceite es muy fluctuante, esto 
+podría deberse un evento climático adverso como una sequía que provocara el pico
+de precios a mediados de 2024, seguido de una buena cosecha hacia finales del 
+año que provocó la caída. *Figura 14*
 
-
+```{r, echo = FALSE}
 
 # Filtrar los productos que contienen ALGUNA de las palabras en la lista 
 #He considerado que es mejor seleccinar solo el aceite de oliva ya que el de girasol tiene un precio más bajo y contamina la evolución del precio.
@@ -459,7 +463,7 @@ productos_aceite <- productos %>%
   filter(str_detect(tolower(nombre), paste(terminos_aceite, collapse = "|")))
 
 # Visualizar los productos de aceite encontrados para verificar
-print(unique(productos_aceite$nombre))
+#print(unique(productos_aceite$nombre))
  
 
 #Unir los productos de aceite con la información de los tickets por el código de factura
@@ -484,7 +488,7 @@ if(nrow(precio_promedio_aceite_diario) > 0) {
     figura_evolucion_aceite <- ggplot(precio_promedio_aceite_diario, aes(x = dia, y = precio_medio)) +
       geom_line() +
       geom_point() +
-      labs(title = "Evolución del Precio Promedio del Aceite a lo Largo del Tiempo",
+      labs(title = "Figura 14: Evolución del Precio Promedio del Aceite a lo Largo del Tiempo",
            x = "Fecha",
            y = "Precio Medio por Unidad (€)") +
       theme_minimal()
@@ -496,11 +500,10 @@ if(nrow(precio_promedio_aceite_diario) > 0) {
 
 ```
 
-
 3. ¿Cuál es el mercadona más popular de Valencia? Es decir,¿Cuál ha sido el más
 visitado?
 
-```{r, include = FALSE}
+```{r, echo = FALSE}
 
 # Crear tabla de visitas por dirección
 tabla_visitas_mercadona <- tickets %>%
@@ -589,12 +592,25 @@ knitr::kable(media_productos_ok, caption = "Figura 17: Franja del día más frec
 
 
 6. ¿Existe relación entre el importe de la compra y el parking?
-```{r}
+
+- El boxplot muestra que la mediana del importe de la compra para los tickets 
+con parking es ligeramente más alta que la mediana para los tickets sin parking.
+La dispersión, es decir, la altura de las cajas parece similar entre ambos 
+grupos, aunque el grupo sin parking tiene algunos outliers con importes más 
+altos.
+
+
+- En conclusión, parece haber una ligera tendencia hacia un mayor importe de 
+compra en los tickets donde se usó el parking, aunque la variabilidad de los 
+importes es similar en ambos grupos y no parece que haya mucha relación entre 
+estas dos variables. *Figura 18*
+
+```{r, echo=FALSE}
 #Visualización (Boxplot)
 figura_parking_importe <- ggplot(tickets, aes(x = parking, y = importe, fill = parking)) +
   geom_boxplot() +
   labs(
-    title = "Relación entre Importe de la Compra y Parking",
+    title = "Figura 18: Relación entre Importe de la Compra y Parking",
     x = "¿Usó Parking?",
     y = "Importe de la Compra (€)",
     fill = "¿Usó Parking?"
@@ -608,7 +624,6 @@ print(figura_parking_importe)
 ```
 
 
-#Figura 18
 
 7. ¿Qué día de la semana se vende más?
 
@@ -635,12 +650,17 @@ knitr::kable(dia_semana_mas, caption = "Figura 19: Día más popular para hacer 
 ```
 
 
-**Conclusión**
+**4. Conclusión**
 
-En esta primera fase del proyecto, hemos aprendido a importar documentos .pdf 
-así como almacenar de forma iterativa en data frames información de ficheros
-.txt. Además, hemos ampliado nuestro conocimeinto sobre librerías como stringr,
-tidyverse o dplyr y hemos aprendido el funcionamiento de la aplicación Git Hub 
-que nos ha servido como gran herramienta para poder trabajar de forma remota 
-de manera colaborativa permitiéndonos a partir de un repositorio público con 
-el nombre de 'Mini-Proyecto-2025' a partir del uso del "Version Control".
+- El proyecto realizado ha permitido un análisis exhaustivo del comportamiento 
+de compra en supermercados Mercadona, aprovechando técnicas avanzadas de 
+procesamiento y visualización de datos en RStudio y gestión colaborativa 
+mediante GitHub... Este proyecto ha potenciado el manejo de librerías clave de 
+R como tidyverse, dplyr, ggplot2, y el uso eficiente de herramientas 
+colaborativas como GitHub. La integración de estas tecnologías ha facilitado un
+análisis de datos sólido, permitiendo comprender patrones de consumo y 
+tendencias en la cadena de supermercados analizada.
+
+
+
+
