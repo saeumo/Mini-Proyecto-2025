@@ -488,7 +488,7 @@ knitr::kable(top_tickets, caption = "Figura 9: Top de supermercados por número 
 - Hay muchos tickets de Valencia, de Alicante, de Garrucha y luego hay otras 
 direcciones. *Figura 10*
 
-```{r}
+```{r, echo =FALSE}
 library(tidyverse)
 
 # Definir posibles ciudades mencionadas en los tickets
@@ -509,6 +509,9 @@ top_10
 
 ```
 
+```{r top_10, echo=FALSE}
+knitr::kable(top_10, caption = "Figura 10")
+```
 
 10. Muestra mediante un diagrama el número de tickets recogidos cada día de las 
 semana.
