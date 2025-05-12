@@ -488,7 +488,7 @@ knitr::kable(top_tickets, caption = "Figura 9: Top de supermercados por número 
 - Hay muchos tickets de Valencia, de Alicante, de Garrucha y luego hay otras 
 direcciones. *Figura 10*
 
-```{r, echo =FALSE}
+```{r, echo = FALSE}
 library(tidyverse)
 
 # Definir posibles ciudades mencionadas en los tickets
@@ -505,7 +505,6 @@ tickets_ciudades <- tickets %>%
 # Mostrar el top 10 directamente en el reporte
 top_10 <- tickets_ciudades %>%
   slice_head(n = 10)
-top_10
 
 ```
 
@@ -651,7 +650,7 @@ if(nrow(precio_promedio_aceite_diario) > 0) {
 3. ¿Cuál es el mercadona más popular de Valencia? Es decir,¿Cuál ha sido el más
 visitado?
 
-```{r, echo = FALSE}
+```{r, echo = FALSE, warning=FALSE}
 library(knitr)
 # Crear tabla de visitas por dirección
 tabla_visitas_mercadona <- tickets %>%
