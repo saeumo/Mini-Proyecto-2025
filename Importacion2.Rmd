@@ -481,23 +481,23 @@ direcciones. *Figura 10*
 
 ```{r, echo = FALSE}
 # Asegurarnos de que tickets_ciudad ya contiene la columna ciudad
-if(!"ciudad" %in% names(tickets_ciudad)) {
-  stop("La columna 'ciudad' no existe. Asegúrate de haber ejecutado el mapeo en el chunk anterior.")
-}
+#if(!"ciudad" %in% names(tickets_ciudad)) {
+ # stop("La columna 'ciudad' no existe. Asegúrate de haber ejecutado el mapeo en el chunk anterior.")
+#}
 
 # Crear un resumen y ordenar de mayor a menor
-resumen_ciudad <- tickets_ciudad %>%
-  group_by(ciudad) %>%
-  summarise(
-    n_tickets = n()
-  ) %>%
-  arrange(desc(n_tickets))
+#resumen_ciudad <- tickets_ciudad %>%
+ # group_by(ciudad) %>%W
+ # summarise(
+   # n_tickets = n()
+ # ) %>%
+ # arrange(desc(n_tickets))
 
 # Excluir entradas sin ciudad asignada (NA) y luego mostrar top 10
-top_ciudades <- resumen_ciudad %>%
-  filter(!is.na(ciudad)) %>%
-  slice(1:10)
-knitr::kable(top_ciudades, caption = "Figura 10: Top de ciudades/pueblos por número de tickets (sin NA)")
+#top_ciudades <- resumen_ciudad %>%
+ # filter(!is.na(ciudad)) %>%
+ # slice(1:10)
+#knitr::kable(top_ciudades, caption = "Figura 10: Top de ciudades/pueblos por número de tickets (sin NA)")
 ```
 
 
